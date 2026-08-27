@@ -9,17 +9,21 @@ public class Reportes {
     String captura_pantalla;
     boolean es_manual;
     estado_reporte estado_reporte;
+    Usuario usuario;
+    Numero_reportado numero_reportado;
 
     public Reportes() {
     }
 
-    public Reportes(int id_reporte, LocalDateTime fecha_hora, String cuerpo_sms, String captura_pantalla, boolean es_manual, estado_reporte estado_reporte) {
+    public Reportes(int id_reporte, LocalDateTime fecha_hora, String cuerpo_sms, String captura_pantalla, boolean es_manual, estado_reporte estado_reporte, Usuario usuario, Numero_reportado numero_reportado) {
         this.id_reporte = id_reporte;
         this.fecha_hora = fecha_hora;
         this.cuerpo_sms = cuerpo_sms;
         this.captura_pantalla = captura_pantalla;
         this.es_manual = es_manual;
         this.estado_reporte = estado_reporte;
+        this.usuario = usuario;
+        this.numero_reportado = numero_reportado;
     }
 
     public int getId_reporte() {
@@ -68,5 +72,21 @@ public class Reportes {
 
     public void setEstado_reporte(estado_reporte estado_reporte) {
         this.estado_reporte = estado_reporte;
+    }
+
+    public Usuario getUsuario() {
+        return usuario;
+    }
+
+    public void setUsuario(Usuario usuario) {
+        this.usuario = usuario;
+    }
+
+    public Numero_reportado getNumero_reportado() {
+        return numero_reportado;
+    }
+
+    public void setNumero_reportado(Numero_reportado numero_reportado) {
+        this.numero_reportado = numero_reportado;
     }
 }

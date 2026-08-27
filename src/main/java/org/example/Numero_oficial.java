@@ -6,14 +6,18 @@ public class Numero_oficial {
     int id_numero_oficial;
     String numero_telefono;
     LocalDate fecha_carga;
+    Pais_prefijo pais_prefijo;
+    Administrador administrador;
 
     public Numero_oficial() {
     }
 
-    public Numero_oficial(int id_numero_oficial, String numero_telefono, LocalDate fecha_carga) {
+    public Numero_oficial(int id_numero_oficial, String numero_telefono, LocalDate fecha_carga, Pais_prefijo pais_prefijo, Administrador administrador) {
         this.id_numero_oficial = id_numero_oficial;
         this.numero_telefono = numero_telefono;
         this.fecha_carga = fecha_carga;
+        this.pais_prefijo = pais_prefijo;
+        this.administrador = administrador;
     }
 
     public int getId_numero_oficial() {
@@ -38,5 +42,21 @@ public class Numero_oficial {
 
     public void setFecha_carga(LocalDate fecha_carga) {
         this.fecha_carga = fecha_carga;
+    }
+
+    public Pais_prefijo getPais_prefijo() {
+        return pais_prefijo;
+    }
+
+    public void setPais_prefijo(Pais_prefijo pais_prefijo) {
+        this.pais_prefijo = pais_prefijo;
+    }
+
+    public Administrador getAdministrador() {
+        return administrador;
+    }
+
+    public void setAdministrador(Administrador administrador) {
+        this.administrador = administrador;
     }
 }

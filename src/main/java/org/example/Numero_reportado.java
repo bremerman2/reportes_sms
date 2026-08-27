@@ -4,6 +4,7 @@ public class Numero_reportado {
     int id_numero_reportado;
     String numero_telefono;
     int cantidad_reportes;
+    Pais_prefijo pais_prefijo;
 
     public Numero_reportado() {
     }
@@ -36,5 +37,13 @@ public class Numero_reportado {
 
     public void setCantidad_reportes(int cantidad_reportes) {
         this.cantidad_reportes = cantidad_reportes;
+    }
+
+    public Pais_prefijo getPais_prefijo() {
+        return pais_prefijo;
+    }
+
+    public void setPais_prefijo(Pais_prefijo pais_prefijo) {
+        this.pais_prefijo = pais_prefijo;
     }
 }

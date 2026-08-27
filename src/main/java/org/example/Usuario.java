@@ -9,11 +9,12 @@ public class Usuario {
     String telefono;
     String email;
     String password;
+    Administrador administrador;
 
     public Usuario() {
     }
 
-    public Usuario(int id_usuario, boolean permiso_sms, String token_dispositivo, String nombre, String apellido, String telefono, String email, String password) {
+    public Usuario(int id_usuario, boolean permiso_sms, String token_dispositivo, String nombre, String apellido, String telefono, String email, String password, Administrador administrador){
         this.id_usuario = id_usuario;
         this.permiso_sms = permiso_sms;
         this.token_dispositivo = token_dispositivo;
@@ -22,6 +23,7 @@ public class Usuario {
         this.telefono = telefono;
         this.email = email;
         this.password = password;
+        this.administrador = administrador;
     }
 
     public int getId_usuario() {
@@ -86,5 +88,13 @@ public class Usuario {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public Administrador getAdministrador() {
+        return administrador;
+    }
+
+    public void setAdministrador(Administrador administrador) {
+        this.administrador = administrador;
     }
 }
