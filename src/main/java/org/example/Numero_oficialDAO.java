@@ -5,6 +5,8 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Numero_oficialDAO {
 
@@ -82,5 +84,67 @@ public class Numero_oficialDAO {
             System.out.println("Error al eliminar numero oficial");
             throw new RuntimeException(e);
         }
+    }
+
+    public List<Numero_oficial> listarNumOficiales() {
+
+        List<Numero_oficial> lista = new ArrayList<>();
+
+        String query = """
+    SELECT no.id_numero_oficial,
+           no.numero_telefono,
+           no.nombre_entidad,
+           no.fecha_carga,
+           pp.id_prefijo,
+           pp.prefijo,
+           pp.nombre_pais,
+           a.id_admin AS id_administrador,
+           a.nombre
+    FROM numero_oficial no
+    INNER JOIN pais_prefijo pp
+        ON no.id_prefijo = pp.id_prefijo
+    INNER JOIN administrador a
+        ON no.id_admin = a.id_admin
+    ORDER BY no.id_numero_oficial
+    """;
+
+        try (Connection conexion = ConexionDB.obtenerConexion();
+             PreparedStatement sentencia = conexion.prepareStatement(query);
+             ResultSet rSet = sentencia.executeQuery()) {
+
+            while (rSet.next()) {
+
+                Pais_prefijo prefijo = new Pais_prefijo(
+                        rSet.getInt("id_prefijo"),
+                        rSet.getString("prefijo"),
+                        rSet.getString("nombre_pais")
+                );
+
+                Administrador administrador = new Administrador();
+                administrador.setId_administrador(
+                        rSet.getInt("id_administrador")
+                );
+                administrador.setNombre(
+                        rSet.getString("nombre")
+                );
+
+                Numero_oficial numero = new Numero_oficial(
+                        rSet.getInt("id_numero_oficial"),
+                        rSet.getString("numero_telefono"),
+                        rSet.getString("nombre_entidad"),
+                        rSet.getDate("fecha_carga").toLocalDate(),
+                        prefijo,
+                        administrador
+                );
+
+                lista.add(numero);
+            }
+
+        } catch (SQLException e) {
+            System.out.println("Error al listar numeros oficiales.");
+            e.printStackTrace();
+        }
+
+        return lista;
     }
 }
