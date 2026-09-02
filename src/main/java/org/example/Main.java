@@ -34,6 +34,7 @@ public class Main {
             System.out.println("11. Confirmar reporte");
             System.out.println("12. Registrar falso positivo");
             System.out.println("13. Buscar reportes por estado");
+            System.out.println("14. Mostrar estadisticas de reportes");
 
             System.out.println("\n\n=== GESTION DE USUARIOS ===");
             System.out.println("14. Buscar usuario");
@@ -97,11 +98,13 @@ public class Main {
                     buscarReportesPorEstado(sc, reportesDAO);
                     pausar(sc);
                     break;
-
+                case 14:
+                    reportesDAO.consultarEstadisticas();
+                    pausar(sc);
+                    break;
                 case 15:
                     bloquearUsuario(sc, usuarioDAO);
                     break;
-
                 case 16:
                     eliminarUsuario(sc, usuarioDAO);
                     break;
