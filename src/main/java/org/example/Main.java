@@ -17,13 +17,14 @@ public class Main {
             System.out.println("1. Registrar numero oficial");
             System.out.println("2. Editar numero oficial");
             System.out.println("3. Eliminar numero oficial");
-            
+            System.out.println("4. Listar numero oficial");
+
             System.out.println("\n\n=== GESTION DE PREFIJOS ===");
-            System.out.println("4. Registrar nuevo prefijo");
-            System.out.println("5. Editar prefijo");
-            System.out.println("6. Eliminar prefijo");
-            System.out.println("7. Listar prefijos");
-            
+            System.out.println("5. Registrar nuevo prefijo");
+            System.out.println("6. Editar prefijo");
+            System.out.println("7. Eliminar prefijo");
+            System.out.println("8. Listar prefijos");
+
 
             System.out.println("0. Salir");
             System.out.print("Elegi una opcion: ");
@@ -40,15 +41,18 @@ public class Main {
                     eliminar(sc, dao);
                     break;
                 case 4:
-                    registrarPrefijo(sc, paisPrefijoDAO);
+                    listarNumOficiales(dao);
                     break;
                 case 5:
-                    editarPrefijo(sc, paisPrefijoDAO);
+                    registrarPrefijo(sc, paisPrefijoDAO);
                     break;
                 case 6:
-                    eliminarPrefijo(sc, paisPrefijoDAO);
+                    editarPrefijo(sc, paisPrefijoDAO);
                     break;
                 case 7:
+                    eliminarPrefijo(sc, paisPrefijoDAO);
+                    break;
+                case 8:
                     listarPrefijos(paisPrefijoDAO);
                     break;
                 case 0:
@@ -138,6 +142,28 @@ public class Main {
         System.out.println(ok ? "Numero oficial eliminado con exito." : "No se pudo eliminar el numero oficial.");
     }
 
+    private static void listarNumOficiales(Numero_oficialDAO dao) {
+
+        List<Numero_oficial> numeros = dao.listarNumOficiales();
+
+        if (numeros.isEmpty()) {
+            System.out.println("\n=== No hay numeros oficiales registrados ===");
+        } else {
+            System.out.println("\n==--== Numeros oficiales registrados ==--==\n");
+
+            for (Numero_oficial numero : numeros) {
+
+                System.out.println("ID: " + numero.getId_numero_oficial());
+                System.out.println("NUMERO: " + numero.getNumero_telefono());
+                System.out.println("ENTIDAD: " + numero.getNombre_entidad());
+                System.out.println("PREFIJO: " + numero.getPais_prefijo().getPrefijo());
+                System.out.println("PAIS: " + numero.getPais_prefijo().getNombre_pais());
+                System.out.println("FECHA DE CARGA: " + numero.getFecha_carga());
+                System.out.println("ADMINISTRADOR: " + numero.getAdministrador().getNombre());
+                System.out.println("-----------------------");
+            }
+        }
+    }
 
     private static void registrarPrefijo(Scanner sc, Pais_prefijoDAO paisPrefijoDAO) {
         System.out.println("\n======================================");
@@ -171,7 +197,7 @@ public class Main {
         if (ok) {
             System.out.println("==--== Prefijo registrado correctamente ==--==");
         } else {
-            System.out.println("--- No se pudo registrar el prefijo ---"); 
+            System.out.println("--- No se pudo registrar el prefijo ---");
         }
     }
 
@@ -219,11 +245,11 @@ public class Main {
 
         boolean ok = paisPrefijoDAO.editarPrefijo(paisPrefijo);
         if (ok) {
-        System.out.println("==--== Prefijo editado correctamente ==--==");
+            System.out.println("==--== Prefijo editado correctamente ==--==");
         } else {
-        System.out.println("--- No se pudo editar el prefijo ---"); 
+            System.out.println("--- No se pudo editar el prefijo ---");
         }
-    } 
+    }
 
     private static void eliminarPrefijo(Scanner sc, Pais_prefijoDAO paisPrefijoDAO) {
         System.out.println("\n------------------------------");
@@ -237,20 +263,20 @@ public class Main {
 
         boolean ok = paisPrefijoDAO.eliminarPrefijo(id);
         if (ok) {
-        System.out.println("==--== Prefijo eliminado correctamente ==--==");
+            System.out.println("==--== Prefijo eliminado correctamente ==--==");
         } else {
-        System.out.println("--- No se pudo eliminar el prefijo ---"); 
+            System.out.println("--- No se pudo eliminar el prefijo ---");
         }
-    }    
+    }
 
     private static void listarPrefijos(Pais_prefijoDAO paisPrefijoDAO) {
-    List<Pais_prefijo> prefijos = paisPrefijoDAO.obtenerPrefijos();
+        List<Pais_prefijo> prefijos = paisPrefijoDAO.obtenerPrefijos();
 
-    if(prefijos.isEmpty()) {
-        System.out.println("\n=== No hay prefijos registrados ===");
-    } else {
-        System.out.println("\n==--== Prefijos registrados ==--==\n");
-        for (Pais_prefijo p : prefijos) {
+        if(prefijos.isEmpty()) {
+            System.out.println("\n=== No hay prefijos registrados ===");
+        } else {
+            System.out.println("\n==--== Prefijos registrados ==--==\n");
+            for (Pais_prefijo p : prefijos) {
                 System.out.println("ID: " + p.getId_prefijo());
                 System.out.println("PREFIJO:" + p.getPrefijo());
                 System.out.println("PAIS: " + p.getNombre_pais());
@@ -259,4 +285,3 @@ public class Main {
         }
     }
 }
-
