@@ -1,6 +1,7 @@
 package org.example;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Scanner;
 import java.util.List;
 
@@ -10,6 +11,7 @@ public class Main {
         Scanner sc = new Scanner(System.in);
         Numero_oficialDAO dao = new Numero_oficialDAO();
         Pais_prefijoDAO paisPrefijoDAO = new Pais_prefijoDAO();
+        ReportesDAO reportesDAO = new ReportesDAO();
         int opcion;
 
         do {
@@ -25,6 +27,12 @@ public class Main {
             System.out.println("7. Eliminar prefijo");
             System.out.println("8. Listar prefijos");
 
+            System.out.println("\n\n=== GESTION DE REPORES ===");
+            System.out.println("9. Registrar un reporte");
+            System.out.println("10. Listar reportes");
+            System.out.println("11. Confirmar reporte");
+            System.out.println("12. Registrar falso positivo");
+            System.out.println("13. Buscar reportes por estado");
 
             System.out.println("0. Salir");
             System.out.print("Elegi una opcion: ");
@@ -33,27 +41,55 @@ public class Main {
             switch (opcion) {
                 case 1:
                     registrar(sc, dao);
+                    pausar(sc);
                     break;
                 case 2:
                     editar(sc, dao);
+                    pausar(sc);
                     break;
                 case 3:
                     eliminar(sc, dao);
+                    pausar(sc);
                     break;
                 case 4:
                     listarNumOficiales(dao);
+                    pausar(sc);
                     break;
                 case 5:
                     registrarPrefijo(sc, paisPrefijoDAO);
+                    pausar(sc);
                     break;
                 case 6:
                     editarPrefijo(sc, paisPrefijoDAO);
+                    pausar(sc);
                     break;
                 case 7:
                     eliminarPrefijo(sc, paisPrefijoDAO);
+                    pausar(sc);
                     break;
                 case 8:
                     listarPrefijos(paisPrefijoDAO);
+                    pausar(sc);
+                    break;
+                case 9:
+                    registrarReporte(sc, reportesDAO);
+                    pausar(sc);
+                    break;
+                case 10:
+                    listarReportes(reportesDAO);
+                    pausar(sc);
+                    break;
+                case 11:
+                    confirmarReporte(sc, reportesDAO);
+                    pausar(sc);
+                    break;
+                case 12:
+                    registrarFalsoPositivo(sc, reportesDAO);
+                    pausar(sc);
+                    break;
+                case 13:
+                    buscarReportesPorEstado(sc, reportesDAO);
+                    pausar(sc);
                     break;
                 case 0:
                     System.out.println("Chau!");
@@ -267,7 +303,7 @@ public class Main {
         } else {
             System.out.println("--- No se pudo eliminar el prefijo ---");
         }
-    }
+    }    
 
     private static void listarPrefijos(Pais_prefijoDAO paisPrefijoDAO) {
         List<Pais_prefijo> prefijos = paisPrefijoDAO.obtenerPrefijos();
@@ -283,5 +319,137 @@ public class Main {
                 System.out.println("-----------------------");
             }
         }
+    }
+
+    private static void registrarReporte(Scanner sc, ReportesDAO reportesDAO) {
+        System.out.println("\n======================================");
+        System.out.println("====== Registrar nuevo reporte ======");
+        System.out.println("======================================\n");
+
+        System.out.print("Cuerpo del SMS: ");
+        String cuerpoSms = sc.nextLine().trim();
+
+        System.out.print("¿Es un reporte manual? (s/n): ");
+        boolean esManual = sc.nextLine().trim().equalsIgnoreCase("s");
+
+        //solo se pide captura si el reporte es manual
+        String capturaPantalla = null;
+        if (esManual) {
+            System.out.print("Ruta/nombre de la captura de pantalla: ");
+            capturaPantalla = sc.nextLine().trim();
+        }
+
+        System.out.print("ID del usuario que reporta: ");
+        int idUsuario = Integer.parseInt(sc.nextLine().trim());
+
+        System.out.print("ID del numero reportado: ");
+        int idNumReportado = Integer.parseInt(sc.nextLine().trim());
+
+        //controlar campos obligatorios
+        if (cuerpoSms.isEmpty() || (esManual && capturaPantalla.isEmpty())) {
+            System.out.println("Debe ingresar valores validos en los campos obligatorios");
+            return;
+        }
+
+        Usuario usuario = new Usuario();
+        usuario.setId_usuario(idUsuario);
+
+        Numero_reportado numeroReportado = new Numero_reportado();
+        numeroReportado.setId_numero_reportado(idNumReportado);
+
+        //id, fecha_hora y estado se resuelven solos dentro del DAO (autoincremental, ahora y pendiente)
+        Reportes reporte = new Reportes(0, LocalDateTime.now(), cuerpoSms, capturaPantalla, esManual, estado_reporte.PENDIENTE, usuario, numeroReportado);
+
+        boolean ok = reportesDAO.registrarReporte(reporte);
+        if (ok) {
+            System.out.println("==--== Reporte registrado correctamente (ID: " + reporte.getId_reporte() + ") ==--==");
+        } else {
+            System.out.println("--- No se pudo registrar el reporte ---");
+        }
+    }
+
+    private static void listarReportes(ReportesDAO reportesDAO) {
+        System.out.println("\n======================================");
+        System.out.println("====== Listado de reportes ======");
+        System.out.println("======================================\n");
+
+        List<Reportes> lista = reportesDAO.listarReportes();
+        mostrarReportes(lista);
+    }
+
+    private static void confirmarReporte(Scanner sc, ReportesDAO reportesDAO) {
+        System.out.println("\n======================================");
+        System.out.println("====== Confirmar reporte ======");
+        System.out.println("======================================\n");
+
+        System.out.print("ID del reporte a confirmar: ");
+        int id = Integer.parseInt(sc.nextLine().trim());
+
+        boolean ok = reportesDAO.confirmarReporte(id);
+        if (ok) {
+            System.out.println("==--== Reporte confirmado correctamente ==--==");
+        } else {
+            System.out.println("--- No se pudo confirmar el reporte (verificar que exista y este pendiente) ---");
+        }
+    }
+
+    private static void registrarFalsoPositivo(Scanner sc, ReportesDAO reportesDAO) {
+        System.out.println("\n======================================");
+        System.out.println("====== Registrar falso positivo ======");
+        System.out.println("======================================\n");
+
+        System.out.print("ID del reporte a marcar como falso positivo: ");
+        int id = Integer.parseInt(sc.nextLine().trim());
+
+        boolean ok = reportesDAO.gestionarFalsoPositivo(id);
+        if (ok) {
+            System.out.println("==--== Reporte marcado como falso positivo ==--==");
+        } else {
+            System.out.println("--- No se pudo actualizar el reporte ---");
+        }
+    }
+
+    private static void buscarReportesPorEstado(Scanner sc, ReportesDAO reportesDAO) {
+        System.out.println("\n======================================");
+        System.out.println("====== Buscar reportes por estado ======");
+        System.out.println("======================================\n");
+
+        System.out.println("Estados posibles: CONFIRMADO, PENDIENTE, FALSO_POSITIVO");
+        System.out.print("Estado a buscar: ");
+        String entrada = sc.nextLine().trim().toUpperCase();
+
+        estado_reporte estado;
+        try {
+            estado = estado_reporte.valueOf(entrada);
+        } catch (IllegalArgumentException e) {
+            System.out.println("--- Estado invalido ---");
+            return;
+        }
+
+        List<Reportes> lista = reportesDAO.buscarPorEstado(estado);
+        mostrarReportes(lista);
+    }
+
+    //imprime una lista de reportes, la usan listarReportes y buscarReportesPorEstado
+    private static void mostrarReportes(List<Reportes> lista) {
+        if (lista.isEmpty()) {
+            System.out.println("No se encontraron reportes.");
+            return;
+        }
+
+        for (Reportes r : lista) {
+            System.out.println("ID: " + r.getId_reporte() +
+                    " | Fecha: " + r.getFecha_hora() +
+                    " | Estado: " + r.getEstado_reporte() +
+                    " | Manual: " + r.isEs_manual() +
+                    " | Usuario ID: " + r.getUsuario().getId_usuario() +
+                    " | Numero reportado ID: " + r.getNumero_reportado().getId_numero_reportado() +
+                    " | SMS: " + r.getCuerpo_sms());
+        }
+    }
+
+    private static void pausar(Scanner sc) {
+        System.out.println("\nPresiona ENTER para continuar...");
+        sc.nextLine();
     }
 }
