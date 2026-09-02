@@ -12,6 +12,7 @@ public class Main {
         Numero_oficialDAO dao = new Numero_oficialDAO();
         Pais_prefijoDAO paisPrefijoDAO = new Pais_prefijoDAO();
         ReportesDAO reportesDAO = new ReportesDAO();
+        UsuarioDAO usuarioDAO = new UsuarioDAO();
         int opcion;
 
         do {
@@ -27,12 +28,17 @@ public class Main {
             System.out.println("7. Eliminar prefijo");
             System.out.println("8. Listar prefijos");
 
-            System.out.println("\n\n=== GESTION DE REPORES ===");
+            System.out.println("\n\n=== GESTION DE REPORTES ===");
             System.out.println("9. Registrar un reporte");
             System.out.println("10. Listar reportes");
             System.out.println("11. Confirmar reporte");
             System.out.println("12. Registrar falso positivo");
             System.out.println("13. Buscar reportes por estado");
+
+            System.out.println("\n\n=== GESTION DE USUARIOS ===");
+            System.out.println("14. Buscar usuario");
+            System.out.println("15. Bloquear usuario");
+            System.out.println("16. Eliminar usuario");
 
             System.out.println("0. Salir");
             System.out.print("Elegi una opcion: ");
@@ -90,6 +96,14 @@ public class Main {
                 case 13:
                     buscarReportesPorEstado(sc, reportesDAO);
                     pausar(sc);
+                    break;
+
+                case 15:
+                    bloquearUsuario(sc, usuarioDAO);
+                    break;
+
+                case 16:
+                    eliminarUsuario(sc, usuarioDAO);
                     break;
                 case 0:
                     System.out.println("Chau!");
@@ -303,7 +317,7 @@ public class Main {
         } else {
             System.out.println("--- No se pudo eliminar el prefijo ---");
         }
-    }    
+    }
 
     private static void listarPrefijos(Pais_prefijoDAO paisPrefijoDAO) {
         List<Pais_prefijo> prefijos = paisPrefijoDAO.obtenerPrefijos();
@@ -451,5 +465,88 @@ public class Main {
     private static void pausar(Scanner sc) {
         System.out.println("\nPresiona ENTER para continuar...");
         sc.nextLine();
+    }
+
+    private static void bloquearUsuario(Scanner sc, UsuarioDAO usuarioDAO) {
+
+        System.out.println("\n======================================");
+        System.out.println("          BLOQUEAR USUARIO");
+        System.out.println("======================================");
+
+        System.out.print("Ingrese el ID del usuario: ");
+        int idUsuario = Integer.parseInt(sc.nextLine());
+
+        Usuario usuario = usuarioDAO.obtenerUsuarioPorId(idUsuario);
+
+        if (usuario == null) {
+            System.out.println("No existe un usuario con ese ID.");
+            return;
+        }
+
+        System.out.println("\nUsuario encontrado:");
+        System.out.println("ID: " + usuario.getId_usuario());
+        System.out.println("Nombre: " +
+                usuario.getNombre() + " " + usuario.getApellido());
+        System.out.println("Email: " + usuario.getEmail());
+
+        if (usuario.isBloqueado()) {
+            System.out.println("El usuario ya se encuentra bloqueado.");
+            return;
+        }
+
+        System.out.print("\n¿Desea bloquear este usuario? (s/n): ");
+        String confirmacion = sc.nextLine();
+
+        if (!confirmacion.equalsIgnoreCase("s")) {
+            System.out.println("Operacion cancelada.");
+            return;
+        }
+
+        boolean ok = usuarioDAO.bloquearUsuario(idUsuario);
+
+        if (ok) {
+            System.out.println("Usuario bloqueado correctamente.");
+        } else {
+            System.out.println("No se pudo bloquear el usuario.");
+        }
+    }
+
+    private static void eliminarUsuario(Scanner sc, UsuarioDAO usuarioDAO) {
+
+        System.out.println("\n======================================");
+        System.out.println("          ELIMINAR USUARIO");
+        System.out.println("======================================");
+
+        System.out.print("Ingrese el ID del usuario: ");
+        int idUsuario = Integer.parseInt(sc.nextLine());
+
+        Usuario usuario = usuarioDAO.obtenerUsuarioPorId(idUsuario);
+
+        if (usuario == null) {
+            System.out.println("No existe un usuario con ese ID.");
+            return;
+        }
+
+        System.out.println("\nUsuario encontrado:");
+        System.out.println("ID: " + usuario.getId_usuario());
+        System.out.println("Nombre: " +
+                usuario.getNombre() + " " + usuario.getApellido());
+        System.out.println("Email: " + usuario.getEmail());
+
+        System.out.print("\n¿Está seguro que desea eliminarlo? (s/n): ");
+        String confirmacion = sc.nextLine();
+
+        if (!confirmacion.equalsIgnoreCase("s")) {
+            System.out.println("Operacion cancelada.");
+            return;
+        }
+
+        boolean ok = usuarioDAO.eliminarUsuario(idUsuario);
+
+        if (ok) {
+            System.out.println("Usuario eliminado correctamente.");
+        } else {
+            System.out.println("No se pudo eliminar el usuario.");
+        }
     }
 }
