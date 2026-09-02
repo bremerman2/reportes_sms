@@ -37,9 +37,9 @@ public class Main {
             System.out.println("14. Mostrar estadisticas de reportes");
 
             System.out.println("\n\n=== GESTION DE USUARIOS ===");
-            System.out.println("14. Buscar usuario");
-            System.out.println("15. Bloquear usuario");
-            System.out.println("16. Eliminar usuario");
+            System.out.println("15. Buscar usuario");
+            System.out.println("16. Bloquear usuario");
+            System.out.println("17. Eliminar usuario");
 
             System.out.println("0. Salir");
             System.out.print("Elegi una opcion: ");
@@ -141,6 +141,11 @@ public class Main {
         Administrador admin = new Administrador();
         admin.setId_administrador(idAdmin);
 
+        if (Numero_oficialDAO.existeNumeroOficial(telefono)) {
+            System.out.println("--- Ya existe un numero oficial registrado con ese numero ---");
+            return;
+        }
+
         // el id lo asigna la db (autoincremental) y la fecha de carga es la del momento del alta
         Numero_oficial numeroOficial = new Numero_oficial(0, telefono, nombre_entidad, LocalDate.now(), prefijo, admin);
 
@@ -164,9 +169,6 @@ public class Main {
         System.out.print("Nuevo nombre de entidad: ");
         String nombre_entidad = sc.nextLine();
 
-        System.out.print("Nueva fecha de carga (aaaa-mm-dd): ");
-        LocalDate fecha = LocalDate.parse(sc.nextLine());
-
         System.out.print("Nuevo ID prefijo: ");
         int idPrefijo = Integer.parseInt(sc.nextLine());
 
@@ -179,7 +181,12 @@ public class Main {
         Administrador admin = new Administrador();
         admin.setId_administrador(idAdmin);
 
-        Numero_oficial numeroOficial = new Numero_oficial(id, telefono, nombre_entidad, fecha, prefijo, admin);
+        if (Numero_oficialDAO.existeNumeroOficial(telefono)) {
+            System.out.println("--- Ya existe un numero oficial registrado con ese numero ---");
+            return;
+        }
+
+        Numero_oficial numeroOficial = new Numero_oficial(id, telefono, nombre_entidad, LocalDate.now(), prefijo, admin);
 
         boolean ok = dao.editarNumOficial(numeroOficial);
         System.out.println(ok ? "Numero oficial editado con exito." : "No se pudo editar el numero oficial.");

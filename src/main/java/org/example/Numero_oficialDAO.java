@@ -10,6 +10,25 @@ import java.util.List;
 
 public class Numero_oficialDAO {
 
+    public static boolean existeNumeroOficial(String numeroTelefono) {
+        String query = "SELECT COUNT(*) FROM numero_oficial WHERE numero_telefono = ?";
+
+        try (Connection conexion = ConexionDB.obtenerConexion();
+             PreparedStatement sentencia = conexion.prepareStatement(query)) {
+
+            sentencia.setString(1, numeroTelefono);
+
+            try (ResultSet rSet = sentencia.executeQuery()) {
+                if (rSet.next()) {
+                    return rSet.getInt(1) > 0;
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Error al validar duplicados");
+        }
+        return false;
+    }
+
     public boolean registrarNumOficial(Numero_oficial numeroOficial) {
         try {
             //1-se conecta a la db
