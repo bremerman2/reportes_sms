@@ -246,9 +246,9 @@ public class Main {
             System.out.println("Debe ingresar valores validos en ambos campos");
             return;
         }
-        //controlar duplicados prefijo+pais
-        if (paisPrefijoDAO.existePrefijoYPais(prefijo, nombre_pais)) {
-            System.out.println("--- El prefijo y nombre del pais ya se encuentra registrado ---");
+        //controlar duplicados pais
+        if (paisPrefijoDAO.existePais(nombre_pais)) {
+            System.out.println("--- El pais ya se encuentra registrado en el sistema---");
             return;
         }
         Pais_prefijo paisPrefijo = new Pais_prefijo(0, prefijo, nombre_pais);
@@ -301,6 +301,12 @@ public class Main {
             System.out.println("Debe ingresar valores validos en ambos campos");
             return;
         }
+
+        if (paisPrefijoDAO.existePaisExcluyendoId(nombre_pais, id)) {
+            System.out.println("--- El país ya se encuentra registrado con otro prefijo ---");
+            return;
+        }
+
         Pais_prefijo paisPrefijo = new Pais_prefijo(id, prefijo, nombre_pais);
 
         boolean ok = paisPrefijoDAO.editarPrefijo(paisPrefijo);
@@ -319,7 +325,25 @@ public class Main {
         listarPrefijos(paisPrefijoDAO);
 
         System.out.print("ID del prefijo a eliminar: ");
-        int id = Integer.parseInt(sc.nextLine());
+        String entrada = sc.nextLine().trim();
+    
+        if (entrada.isEmpty()) {
+            System.out.println("--- Debe ingresar un ID valido ---");
+            return;
+        }
+        
+        int id;
+        try {
+            id = Integer.parseInt(entrada);
+        } catch (NumberFormatException e) {
+            System.out.println("--- El ID debe ser un numero entero ---");
+            return;
+        }
+
+        if (paisPrefijoDAO.obtenerPrefijoPorId(id) == null) {
+            System.out.println("--- El ID ingresado no existe ---");
+            return;
+        }
 
         boolean ok = paisPrefijoDAO.eliminarPrefijo(id);
         if (ok) {

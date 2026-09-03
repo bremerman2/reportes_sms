@@ -8,16 +8,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Pais_prefijoDAO {
-    //VERIFICAR PREFIJO y PAIS
-    public boolean existePrefijoYPais(String prefijo, String nombrePais) {
+    //VERIFICAR PAIS
+    public boolean existePais(String nombrePais) {
         //generar query con consulta
-        String query = "SELECT COUNT(*) FROM pais_prefijo WHERE prefijo = ? AND LOWER(nombre_pais) = LOWER(?)";
+        String query = "SELECT COUNT(*) FROM pais_prefijo WHERE LOWER(nombre_pais) = LOWER(?)";
          
         try (Connection conexion = ConexionDB.obtenerConexion();
             PreparedStatement sentencia = conexion.prepareStatement(query)) {
 
-            sentencia.setString(1, prefijo);
-            sentencia.setString(2, nombrePais);
+            sentencia.setString(1, nombrePais.trim());
             
             //executeQuery ejecuta la consulta select, rSet almacena el resultado
             try (ResultSet rSet = sentencia.executeQuery()) {
@@ -27,7 +26,7 @@ public class Pais_prefijoDAO {
                 }  
             }
         } catch (SQLException e) {
-            System.out.println("Error al validar duplicados");        
+            System.out.println("Error al validar existencia del pais" + e.getMessage());        
         }
         return false;
     }
@@ -58,6 +57,28 @@ public class Pais_prefijoDAO {
             return false;
         }
     }
+    
+    //verificar duplicado del pais que se esta editando ignorando el id actual
+    public boolean existePaisExcluyendoId(String nombrePais, int idExcluir) {
+
+    String query = "SELECT COUNT(*) FROM pais_prefijo WHERE LOWER(nombre_pais) = LOWER(?) AND id_prefijo != ?";
+
+    try (Connection conexion = ConexionDB.obtenerConexion();
+         PreparedStatement sentencia = conexion.prepareStatement(query)) {
+
+        sentencia.setString(1, nombrePais.trim());
+        sentencia.setInt(2, idExcluir);
+
+        try (ResultSet rSet = sentencia.executeQuery()) {
+            if (rSet.next()) {
+                return rSet.getInt(1) > 0;
+            }
+        }
+    } catch (SQLException e) {
+        System.out.println("Error al validar existencia del pais: " + e.getMessage());
+    }
+    return false;
+}
 
     //EDITAR PREFIJO
     public boolean editarPrefijo(Pais_prefijo paisPrefijo) {
