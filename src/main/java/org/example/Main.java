@@ -13,37 +13,98 @@ public class Main {
         Pais_prefijoDAO paisPrefijoDAO = new Pais_prefijoDAO();
         ReportesDAO reportesDAO = new ReportesDAO();
         UsuarioDAO usuarioDAO = new UsuarioDAO();
-        int opcion;
+        AdministradorDAO administradorDAO = new AdministradorDAO();
+        int opcionPrincipal = -1;
 
         do {
-            System.out.println("\n=== ABM Numero Oficial ===");
+            System.out.println("\n==========================================");
+            System.out.println("========== SISTEMA DE GESTION ==========");
+            System.out.println("==========================================");
+            System.out.println("1. Gestion de Administradores");
+            System.out.println("2. Gestion de Numeros Oficiales");
+            System.out.println("3. Gestion de Prefijos");
+            System.out.println("4. Gestion de Reportes");
+            System.out.println("5. Gestion de Usuarios");
+            System.out.println("0. Salir");
+            System.out.print("Elegi una opcion: ");
+
+            try {
+                opcionPrincipal = Integer.parseInt(sc.nextLine().trim());
+            } catch (NumberFormatException e) {
+                opcionPrincipal = -1;
+            }
+
+            switch (opcionPrincipal) {
+                case 1:
+                    menuAdministradores(sc, administradorDAO);
+                    break;
+                case 2:
+                    menuNumerosOficiales(sc, dao);
+                    break;
+                case 3:
+                    menuPrefijos(sc, paisPrefijoDAO);
+                    break;
+                case 4:
+                    menuReportes(sc, reportesDAO);
+                    break;
+                case 5:
+                    menuUsuarios(sc, usuarioDAO);
+                    break;
+                case 0:
+                    System.out.println("Chau!");
+                    break;
+                default:
+                    System.out.println("--- Opcion invalida ---");
+            }
+
+        } while (opcionPrincipal != 0);
+
+        sc.close();
+    }
+
+    private static void menuAdministradores(Scanner sc, AdministradorDAO administradorDAO) {
+        int opcion = -1;
+        do {
+            System.out.println("\n=== GESTION DE ADMINISTRADORES ===");
+            System.out.println("1. Registrar nuevo administrador");
+            System.out.println("0. Volver al menu principal");
+            System.out.print("Elegi una opcion: ");
+
+            try {
+                opcion = Integer.parseInt(sc.nextLine().trim());
+            } catch (NumberFormatException e) {
+                opcion = -1;
+            }
+
+            switch(opcion) {
+                case 1:
+                    registrarAdministrador(sc, administradorDAO);
+                    pausar(sc);
+                    break;
+                case 0:
+                    break;
+                default:
+                    System.out.println("--- Opcion invalida ---");
+            }
+        } while (opcion != 0);
+    }
+
+    private static void menuNumerosOficiales(Scanner sc, Numero_oficialDAO dao) {
+        int opcion = -1;
+        do {
+            System.out.println("\n=== ABM NUMERO OFICIAL ===");
             System.out.println("1. Registrar numero oficial");
             System.out.println("2. Editar numero oficial");
             System.out.println("3. Eliminar numero oficial");
-            System.out.println("4. Listar numero oficial");
-
-            System.out.println("\n\n=== GESTION DE PREFIJOS ===");
-            System.out.println("5. Registrar nuevo prefijo");
-            System.out.println("6. Editar prefijo");
-            System.out.println("7. Eliminar prefijo");
-            System.out.println("8. Listar prefijos");
-
-            System.out.println("\n\n=== GESTION DE REPORTES ===");
-            System.out.println("9. Registrar un reporte");
-            System.out.println("10. Listar reportes");
-            System.out.println("11. Confirmar reporte");
-            System.out.println("12. Registrar falso positivo");
-            System.out.println("13. Buscar reportes por estado");
-            System.out.println("14. Mostrar estadisticas de reportes");
-
-            System.out.println("\n\n=== GESTION DE USUARIOS ===");
-            System.out.println("15. Buscar usuario");
-            System.out.println("16. Bloquear usuario");
-            System.out.println("17. Eliminar usuario");
-
-            System.out.println("0. Salir");
+            System.out.println("4. Listar numeros oficiales");
+            System.out.println("0. Volver al menu principal");
             System.out.print("Elegi una opcion: ");
-            opcion = Integer.parseInt(sc.nextLine());
+
+            try {
+                opcion = Integer.parseInt(sc.nextLine().trim());
+            } catch (NumberFormatException e) {
+                opcion = -1;
+            }
 
             switch (opcion) {
                 case 1:
@@ -62,62 +123,201 @@ public class Main {
                     listarNumOficiales(dao);
                     pausar(sc);
                     break;
-                case 5:
+                case 0:
+                    break;
+                default:
+                    System.out.println("--- Opcion invalida ---");
+            }
+        } while (opcion != 0);
+    }
+private static void menuPrefijos(Scanner sc, Pais_prefijoDAO paisPrefijoDAO) {
+        int opcion = -1;
+        do {
+            System.out.println("\n=== GESTION DE PREFIJOS ===");
+            System.out.println("1. Registrar nuevo prefijo");
+            System.out.println("2. Editar prefijo");
+            System.out.println("3. Eliminar prefijo");
+            System.out.println("4. Listar prefijos");
+            System.out.println("0. Volver al menu principal");
+            System.out.print("Elegi una opcion: ");
+
+            try {
+                opcion = Integer.parseInt(sc.nextLine().trim());
+            } catch (NumberFormatException e) {
+                opcion = -1;
+            }
+
+            switch (opcion) {
+                case 1:
                     registrarPrefijo(sc, paisPrefijoDAO);
                     pausar(sc);
                     break;
-                case 6:
+                case 2:
                     editarPrefijo(sc, paisPrefijoDAO);
                     pausar(sc);
                     break;
-                case 7:
+                case 3:
                     eliminarPrefijo(sc, paisPrefijoDAO);
                     pausar(sc);
                     break;
-                case 8:
+                case 4:
                     listarPrefijos(paisPrefijoDAO);
                     pausar(sc);
                     break;
-                case 9:
+                case 0:
+                    break;
+                default:
+                    System.out.println("--- Opcion invalida ---");
+            }
+        } while (opcion != 0);
+    }
+
+    private static void menuReportes(Scanner sc, ReportesDAO reportesDAO) {
+        int opcion = -1;
+        do {
+            System.out.println("\n=== GESTION DE REPORTES ===");
+            System.out.println("1. Registrar un reporte");
+            System.out.println("2. Listar reportes");
+            System.out.println("3. Confirmar reporte");
+            System.out.println("4. Registrar falso positivo");
+            System.out.println("5. Buscar reportes por estado");
+            System.out.println("6. Mostrar estadisticas de reportes");
+            System.out.println("0. Volver al menu principal");
+            System.out.print("Elegi una opcion: ");
+
+            try {
+                opcion = Integer.parseInt(sc.nextLine().trim());
+            } catch (NumberFormatException e) {
+                opcion = -1;
+            }
+
+            switch (opcion) {
+                case 1:
                     registrarReporte(sc, reportesDAO);
                     pausar(sc);
                     break;
-                case 10:
+                case 2:
                     listarReportes(reportesDAO);
                     pausar(sc);
                     break;
-                case 11:
+                case 3:
                     confirmarReporte(sc, reportesDAO);
                     pausar(sc);
                     break;
-                case 12:
+                case 4:
                     registrarFalsoPositivo(sc, reportesDAO);
                     pausar(sc);
                     break;
-                case 13:
+                case 5:
                     buscarReportesPorEstado(sc, reportesDAO);
                     pausar(sc);
                     break;
-                case 14:
+                case 6:
                     reportesDAO.consultarEstadisticas();
                     pausar(sc);
                     break;
-                case 15:
-                    bloquearUsuario(sc, usuarioDAO);
-                    break;
-                case 16:
-                    eliminarUsuario(sc, usuarioDAO);
-                    break;
                 case 0:
-                    System.out.println("Chau!");
                     break;
                 default:
-                    System.out.println("Opcion invalida");
+                    System.out.println("--- Opcion invalida ---");
+            }
+        } while (opcion != 0);
+    }
+
+    private static void menuUsuarios(Scanner sc, UsuarioDAO usuarioDAO) {
+        int opcion = -1;
+        do {
+            System.out.println("\n=== GESTION DE USUARIOS ===");
+            System.out.println("1. Bloquear usuario");
+            System.out.println("2. Eliminar usuario");
+            System.out.println("0. Volver al menu principal");
+            System.out.print("Elegi una opcion: ");
+
+            try {
+                opcion = Integer.parseInt(sc.nextLine().trim());
+            } catch (NumberFormatException e) {
+                opcion = -1;
             }
 
+            switch (opcion) {
+                case 1:
+                    bloquearUsuario(sc, usuarioDAO);
+                    pausar(sc);
+                    break;
+                case 2:
+                    eliminarUsuario(sc, usuarioDAO);
+                    pausar(sc);
+                    break;
+                case 0:
+                    break;
+                default:
+                    System.out.println("--- Opcion invalida ---");
+            }
         } while (opcion != 0);
+    }
 
-        sc.close();
+    private static void registrarAdministrador(Scanner sc, AdministradorDAO administradorDAO) {
+        System.out.println("\n===========================================");
+        System.out.println("====== Registrar nuevo administrador ======");
+        System.out.println("=============================================\n");
+
+        System.out.print("Nombre: ");
+        String nombre = sc.nextLine().trim();
+        //controlar campos vacios
+        if(nombre.isEmpty()) {
+            System.out.println("--- El nombre no puede estar vacio ---");
+            return;
+        }
+
+        System.out.print("Apellido: ");
+        String apellido = sc.nextLine().trim();
+        if(apellido.isEmpty()) {
+            System.out.println("--- El apellido no puede estar vacio ---");
+            return;
+        }
+        
+        System.out.print("Telefono: ");
+        String telefono = sc.nextLine().trim();
+        if(telefono.isEmpty()) {
+            System.out.println("--- El telefono no puede estar vacio ---");
+            return;
+        }
+
+        System.out.print("Email: ");
+        String email = sc.nextLine().trim();
+        if(email.isEmpty()) {
+            System.out.println("--- El email no puede estar vacio ---");
+            return;
+        }        
+        //controlar formato basico de email
+        if (!email.matches("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")) {
+            System.out.println("--- Ingrese un email con formato valido(nombre@gmail.com) ---");
+            return;
+        }
+        if (administradorDAO.existeEmail(email)) {
+            System.out.println("--- Ya existe un administrador registrado con ese email ---");
+            return;
+        }
+        
+        System.out.print("Constraseña: ");
+        String password = sc.nextLine().trim();
+        if(password.isEmpty()) {
+            System.out.println("--- La contraseña no puede estar vacia ---");
+            return;
+        }
+        if(password.length() < 6) {
+            System.out.println("--- La constraseña debe tener al menos 6 caracteres ---");
+            return;
+        }
+
+        Administrador administrador = new Administrador(0, email, password, nombre, apellido, telefono);
+
+        boolean ok = administradorDAO.registrarAdministrador(administrador);
+        if (ok) {
+            System.out.println("==--== Administrador registrado correctamente ==--==");
+        } else {
+            System.out.println("--- No se pudo registrar el administrador ---");
+        }
     }
 
     private static void registrar(Scanner sc, Numero_oficialDAO dao) {

@@ -3,7 +3,7 @@ package org.example;
 public class Administrador {
     int id_administrador;
     String email;
-    String contrasenia;
+    String password;
     String nombre;
     String apellido;
     String telefono;
@@ -14,7 +14,7 @@ public class Administrador {
     public Administrador(int id_administrador, String email, String contrasenia, String nombre, String apellido, String telefono) {
         this.id_administrador = id_administrador;
         this.email = email;
-        this.contrasenia = contrasenia;
+        this.password = contrasenia;
         this.nombre = nombre;
         this.apellido = apellido;
         this.telefono = telefono;
@@ -37,11 +37,11 @@ public class Administrador {
     }
 
     public String getContrasenia() {
-        return contrasenia;
+        return password;
     }
 
     public void setContrasenia(String contrasenia) {
-        this.contrasenia = contrasenia;
+        this.password = contrasenia;
     }
 
     public String getNombre() {
