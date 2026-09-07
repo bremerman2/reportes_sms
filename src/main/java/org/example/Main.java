@@ -229,7 +229,8 @@ private static void menuPrefijos(Scanner sc, Pais_prefijoDAO paisPrefijoDAO) {
         do {
             System.out.println("\n=== GESTION DE USUARIOS ===");
             System.out.println("1. Bloquear usuario");
-            System.out.println("2. Eliminar usuario");
+            System.out.println("2. Eliminar usuario");           
+            System.out.println("3. Mostrar stadisticas de Usuarios");
             System.out.println("0. Volver al menu principal");
             System.out.print("Elegi una opcion: ");
 
@@ -247,6 +248,9 @@ private static void menuPrefijos(Scanner sc, Pais_prefijoDAO paisPrefijoDAO) {
                 case 2:
                     eliminarUsuario(sc, usuarioDAO);
                     pausar(sc);
+                    break;
+                case 3:
+                    mostrarEstadisticasUsuarios(sc, usuarioDAO);
                     break;
                 case 0:
                     break;
@@ -283,22 +287,28 @@ private static void menuPrefijos(Scanner sc, Pais_prefijoDAO paisPrefijoDAO) {
             return;
         }
 
-        System.out.print("Email: ");
-        String email = sc.nextLine().trim();
-        if(email.isEmpty()) {
-            System.out.println("--- El email no puede estar vacio ---");
-            return;
-        }        
-        //controlar formato basico de email
-        if (!email.matches("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")) {
-            System.out.println("--- Ingrese un email con formato valido(nombre@gmail.com) ---");
-            return;
+        String email = "";
+
+        while (true) {
+            System.out.print("Email: ");
+            email = sc.nextLine().trim().toLowerCase();
+            if(email.isEmpty()) {
+                System.out.println("--- El email no puede estar vacio ---");
+                continue;
+            }        
+            //controlar formato basico de email
+            if (!email.matches("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")) {
+                System.out.println("--- Ingrese un email con formato valido(nombre@gmail.com) ---");
+                continue;
+            }
+            if (administradorDAO.existeEmail(email)) {
+                System.out.println("--- Ya existe un administrador registrado con ese email ---");
+                continue;
+            }
+
+            break;
         }
-        if (administradorDAO.existeEmail(email)) {
-            System.out.println("--- Ya existe un administrador registrado con ese email ---");
-            return;
-        }
-        
+
         System.out.print("Constraseña: ");
         String password = sc.nextLine().trim();
         if(password.isEmpty()) {
@@ -783,4 +793,20 @@ private static void menuPrefijos(Scanner sc, Pais_prefijoDAO paisPrefijoDAO) {
             System.out.println("No se pudo eliminar el usuario.");
         }
     }
+
+    private static void mostrarEstadisticasUsuarios(Scanner sc, UsuarioDAO usuarioDAO) {
+
+        int[] datos = usuarioDAO.obtenerEstadisticasUsuarios();
+        int total = datos[0];
+        int bloqueados = datos[1];
+        int activos = datos[2];
+
+        System.out.println("\n=======================================");
+        System.out.println("====== Estadisticas de usuarios ======");
+        System.out.println("=========================================\n");
+        System.out.println("Total de usuarios registrados: " + total);
+        System.out.println("Usuarios activos             : " + activos);
+        System.out.println("Usuarios bloqueados          : " + bloqueados);
+    }
 }
+

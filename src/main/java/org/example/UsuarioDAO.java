@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Scanner;
 
 public class UsuarioDAO {
 
@@ -122,4 +123,28 @@ public class UsuarioDAO {
             return false;
         }
     }
+
+    public int[] obtenerEstadisticasUsuarios() {
+        String query = "SELECT " + "COUNT(*) AS total, " + 
+                   "SUM(CASE WHEN bloqueado = 1 THEN 1 ELSE 0 END) AS bloqueados, " + 
+                   "SUM(CASE WHEN bloqueado = 0 THEN 1 ELSE 0 END) AS activos " + "FROM usuario";
+
+        try (Connection conexion = ConexionDB.obtenerConexion(); 
+            PreparedStatement sentencia = conexion.prepareStatement(query);
+            ResultSet rSet = sentencia.executeQuery()) {
+
+        if (rSet.next()) {
+            return new int[] {
+                rSet.getInt("total"),
+                rSet.getInt("bloqueados"),
+                rSet.getInt("activos")
+            };
+        }
+
+    } catch (SQLException e) {
+        System.err.println("Error al obtener estadísticas: " + e.getMessage());
+    }
+    return new int[] {0, 0, 0};
+}
+
 }
