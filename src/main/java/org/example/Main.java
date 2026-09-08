@@ -314,15 +314,19 @@ public class Main {
             break;
         }
 
-        System.out.print("Constraseña: ");
-        String password = sc.nextLine().trim();
-        if(password.isEmpty()) {
-            System.out.println("--- La contraseña no puede estar vacia ---");
-            return;
-        }
-        if(password.length() < 6) {
-            System.out.println("--- La constraseña debe tener al menos 6 caracteres ---");
-            return;
+        String password;
+        while (true) {
+            System.out.print("Constraseña: ");
+            password = sc.nextLine().trim();
+            if(password.isEmpty()) {
+                System.out.println("--- La contraseña no puede estar vacia ---");
+                continue;
+            }
+            if(password.length() < 6) {
+                System.out.println("--- La constraseña debe tener al menos 6 caracteres ---");
+                continue;
+            }
+            break;
         }
 
         Administrador administrador = new Administrador(0, email, password, nombre, apellido, telefono);
