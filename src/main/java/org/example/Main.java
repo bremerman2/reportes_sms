@@ -130,7 +130,7 @@ public class Main {
             }
         } while (opcion != 0);
     }
-private static void menuPrefijos(Scanner sc, Pais_prefijoDAO paisPrefijoDAO) {
+    private static void menuPrefijos(Scanner sc, Pais_prefijoDAO paisPrefijoDAO) {
         int opcion = -1;
         do {
             System.out.println("\n=== GESTION DE PREFIJOS ===");
@@ -228,9 +228,10 @@ private static void menuPrefijos(Scanner sc, Pais_prefijoDAO paisPrefijoDAO) {
         int opcion = -1;
         do {
             System.out.println("\n=== GESTION DE USUARIOS ===");
-            System.out.println("1. Bloquear usuario");
-            System.out.println("2. Eliminar usuario");           
-            System.out.println("3. Mostrar stadisticas de Usuarios");
+            System.out.println("1. Buscar usuario por ID");
+            System.out.println("2. Bloquear usuario");
+            System.out.println("3. Eliminar usuario");
+            System.out.println("4. Mostrar stadisticas de Usuarios");
             System.out.println("0. Volver al menu principal");
             System.out.print("Elegi una opcion: ");
 
@@ -242,14 +243,18 @@ private static void menuPrefijos(Scanner sc, Pais_prefijoDAO paisPrefijoDAO) {
 
             switch (opcion) {
                 case 1:
-                    bloquearUsuario(sc, usuarioDAO);
+                    buscarUsuarioPorId(sc, usuarioDAO);
                     pausar(sc);
                     break;
                 case 2:
-                    eliminarUsuario(sc, usuarioDAO);
+                    bloquearUsuario(sc, usuarioDAO);
                     pausar(sc);
                     break;
                 case 3:
+                    eliminarUsuario(sc, usuarioDAO);
+                    pausar(sc);
+                    break;
+                case 4:
                     mostrarEstadisticasUsuarios(sc, usuarioDAO);
                     break;
                 case 0:
@@ -279,7 +284,7 @@ private static void menuPrefijos(Scanner sc, Pais_prefijoDAO paisPrefijoDAO) {
             System.out.println("--- El apellido no puede estar vacio ---");
             return;
         }
-        
+
         System.out.print("Telefono: ");
         String telefono = sc.nextLine().trim();
         if(telefono.isEmpty()) {
@@ -295,7 +300,7 @@ private static void menuPrefijos(Scanner sc, Pais_prefijoDAO paisPrefijoDAO) {
             if(email.isEmpty()) {
                 System.out.println("--- El email no puede estar vacio ---");
                 continue;
-            }        
+            }
             //controlar formato basico de email
             if (!email.matches("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")) {
                 System.out.println("--- Ingrese un email con formato valido(nombre@gmail.com) ---");
@@ -536,12 +541,12 @@ private static void menuPrefijos(Scanner sc, Pais_prefijoDAO paisPrefijoDAO) {
 
         System.out.print("ID del prefijo a eliminar: ");
         String entrada = sc.nextLine().trim();
-    
+
         if (entrada.isEmpty()) {
             System.out.println("--- Debe ingresar un ID valido ---");
             return;
         }
-        
+
         int id;
         try {
             id = Integer.parseInt(entrada);
@@ -711,6 +716,45 @@ private static void menuPrefijos(Scanner sc, Pais_prefijoDAO paisPrefijoDAO) {
         sc.nextLine();
     }
 
+    private static void buscarUsuarioPorId(Scanner sc, UsuarioDAO usuarioDAO) {
+
+        System.out.println("\n======================================");
+        System.out.println("        BUSCAR USUARIO POR ID");
+        System.out.println("======================================");
+
+        System.out.print("Ingrese el ID del usuario: ");
+
+        try {
+            int idUsuario = Integer.parseInt(sc.nextLine().trim());
+
+            Usuario usuario = usuarioDAO.obtenerUsuarioPorId(idUsuario);
+
+            if (usuario == null) {
+                System.out.println("\nNo existe un usuario con ese ID.");
+                return;
+            }
+
+            System.out.println("\n========== USUARIO ENCONTRADO ==========");
+            System.out.println("ID: " + usuario.getId_usuario());
+            System.out.println("Nombre: " +
+                    usuario.getNombre() + " " + usuario.getApellido());
+            System.out.println("Telefono: " + usuario.getTelefono());
+            System.out.println("Email: " + usuario.getEmail());
+            System.out.println("Bloqueado: " +
+                    (usuario.isBloqueado() ? "Si" : "No"));
+
+            if (usuario.getAdministrador() != null) {
+                System.out.println("ID Administrador: " +
+                        usuario.getAdministrador().getId_administrador());
+            }
+
+            System.out.println("========================================");
+
+        } catch (NumberFormatException e) {
+            System.out.println("\nEl ID debe ser un numero entero.");
+        }
+    }
+
     private static void bloquearUsuario(Scanner sc, UsuarioDAO usuarioDAO) {
 
         System.out.println("\n======================================");
@@ -809,4 +853,3 @@ private static void menuPrefijos(Scanner sc, Pais_prefijoDAO paisPrefijoDAO) {
         System.out.println("Usuarios bloqueados          : " + bloqueados);
     }
 }
-
