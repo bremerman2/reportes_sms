@@ -231,7 +231,7 @@ public class Main {
             System.out.println("1. Buscar usuario por ID");
             System.out.println("2. Bloquear usuario");
             System.out.println("3. Eliminar usuario");
-            System.out.println("4. Mostrar stadisticas de Usuarios");
+            System.out.println("4. Mostrar estadisticas de Usuarios");
             System.out.println("0. Volver al menu principal");
             System.out.print("Elegi una opcion: ");
 
