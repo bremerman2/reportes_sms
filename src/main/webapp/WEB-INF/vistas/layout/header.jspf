@@ -1,0 +1,56 @@
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title><c:out value="${tituloPagina}" /> · Reportes SMS</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+</head>
+<body class="bg-body-tertiary">
+
+<c:set var="ctx" value="${pageContext.request.contextPath}" />
+
+<c:if test="${not empty sessionScope.adminLogueado}">
+<nav class="navbar navbar-expand-lg bg-dark" data-bs-theme="dark">
+    <div class="container">
+        <a class="navbar-brand fw-semibold" href="${ctx}/inicio">Reportes SMS</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menuPrincipal"
+                aria-controls="menuPrincipal" aria-expanded="false" aria-label="Abrir menú">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="menuPrincipal">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item"><a class="nav-link ${menuActivo == 'reportes' ? 'active' : ''}" href="${ctx}/reportes">Reportes</a></li>
+                <li class="nav-item"><a class="nav-link ${menuActivo == 'numeros' ? 'active' : ''}" href="${ctx}/numeros-oficiales">Números oficiales</a></li>
+                <li class="nav-item"><a class="nav-link ${menuActivo == 'prefijos' ? 'active' : ''}" href="${ctx}/prefijos">Prefijos</a></li>
+                <li class="nav-item"><a class="nav-link ${menuActivo == 'usuarios' ? 'active' : ''}" href="${ctx}/usuarios">Usuarios</a></li>
+                <li class="nav-item"><a class="nav-link ${menuActivo == 'administradores' ? 'active' : ''}" href="${ctx}/administradores">Administradores</a></li>
+            </ul>
+            <span class="navbar-text me-3">
+                Hola, <c:out value="${sessionScope.adminLogueado.nombre}" />
+            </span>
+            <a class="btn btn-outline-light btn-sm" href="${ctx}/logout">Cerrar sesión</a>
+        </div>
+    </div>
+</nav>
+</c:if>
+
+<main class="container py-4">
+
+    <%-- Mensajes que dejan los servlets antes de hacer redirect (se muestran una sola vez) --%>
+    <c:if test="${not empty sessionScope.mensajeExito}">
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <c:out value="${sessionScope.mensajeExito}" />
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+        </div>
+        <c:remove var="mensajeExito" scope="session" />
+    </c:if>
+    <c:if test="${not empty sessionScope.mensajeError}">
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <c:out value="${sessionScope.mensajeError}" />
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+        </div>
+        <c:remove var="mensajeError" scope="session" />
+    </c:if>
