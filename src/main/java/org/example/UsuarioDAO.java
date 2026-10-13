@@ -4,6 +4,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class UsuarioDAO {
 
@@ -146,4 +148,31 @@ public class UsuarioDAO {
     return new int[] {0, 0, 0};
 }
 
+    //LISTAR USUARIOS (para la tabla de la pagina de usuarios)
+    public List<Usuario> listarUsuarios() {
+
+        List<Usuario> lista = new ArrayList<>();
+
+        String query = "SELECT id_usuario, bloqueado, nombre, apellido, telefono, email FROM usuario ORDER BY id_usuario";
+
+        try (Connection conexion = ConexionDB.obtenerConexion();
+             PreparedStatement sentencia = conexion.prepareStatement(query);
+             ResultSet rSet = sentencia.executeQuery()) {
+
+            while (rSet.next()) {
+                Usuario usuario = new Usuario();
+                usuario.setId_usuario(rSet.getInt("id_usuario"));
+                usuario.setBloqueado(rSet.getBoolean("bloqueado"));
+                usuario.setNombre(rSet.getString("nombre"));
+                usuario.setApellido(rSet.getString("apellido"));
+                usuario.setTelefono(rSet.getString("telefono"));
+                usuario.setEmail(rSet.getString("email"));
+                lista.add(usuario);
+            }
+
+        } catch (SQLException e) {
+            System.out.println("Error al listar usuarios: " + e.getMessage());
+        }
+        return lista;
+    }
 }

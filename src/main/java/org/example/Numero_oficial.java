@@ -1,6 +1,7 @@
 package org.example;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 public class Numero_oficial {
     int id_numero_oficial;
@@ -68,5 +69,10 @@ public class Numero_oficial {
 
     public void setAdministrador(Administrador administrador) {
         this.administrador = administrador;
+    }
+
+    //fecha lista para mostrar en la pagina (las JSP no saben formatear LocalDate)
+    public String getFecha_carga_texto() {
+        return fecha_carga == null ? "" : fecha_carga.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
     }
 }

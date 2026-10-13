@@ -29,47 +29,68 @@ public class Numero_oficialDAO {
         return false;
     }
 
-    public boolean registrarNumOficial(Numero_oficial numeroOficial) {
-        try {
-            //1-se conecta a la db
-            Connection conexion = ConexionDB.obtenerConexion();
+    //verifica duplicados ignorando el numero que se esta editando
+    public boolean existeNumeroOficialExcluyendoId(String numeroTelefono, int idExcluir) {
+        String query = "SELECT COUNT(*) FROM numero_oficial WHERE numero_telefono = ? AND id_numero_oficial != ?";
 
-            //2-arma la query (no se manda el id porque la columna es autoincremental)
-            String query = "INSERT INTO numero_oficial (numero_telefono, nombre_entidad, fecha_carga, id_prefijo, id_admin) VALUES(?, ?, ?,?,?)";
-            PreparedStatement sentencia = conexion.prepareStatement(query, PreparedStatement.RETURN_GENERATED_KEYS);
+        try (Connection conexion = ConexionDB.obtenerConexion();
+             PreparedStatement sentencia = conexion.prepareStatement(query)) {
+
+            sentencia.setString(1, numeroTelefono);
+            sentencia.setInt(2, idExcluir);
+
+            try (ResultSet rSet = sentencia.executeQuery()) {
+                if (rSet.next()) {
+                    return rSet.getInt(1) > 0;
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Error al validar duplicados");
+        }
+        return false;
+    }
+
+    public boolean registrarNumOficial(Numero_oficial numeroOficial) {
+
+        //no se manda el id porque la columna es autoincremental
+        String query = "INSERT INTO numero_oficial (numero_telefono, nombre_entidad, fecha_carga, id_prefijo, id_admin) VALUES(?, ?, ?,?,?)";
+
+        //try-with-resources: la conexion se cierra sola al terminar (importante en la web, si no se agotan)
+        try (Connection conexion = ConexionDB.obtenerConexion();
+             PreparedStatement sentencia = conexion.prepareStatement(query, PreparedStatement.RETURN_GENERATED_KEYS)) {
+
             sentencia.setString(1, numeroOficial.getNumero_telefono());
             sentencia.setString(2, numeroOficial.getNombre_entidad());
             sentencia.setDate(3, Date.valueOf(numeroOficial.getFecha_carga()));
             sentencia.setInt(4, numeroOficial.getPais_prefijo().getId_prefijo());
             sentencia.setInt(5, numeroOficial.getAdministrador().getId_administrador());
 
-            //3-ejecuta query
             boolean insertado = sentencia.executeUpdate() == 1;
 
-            //4-recupera el id que genero la db y lo carga en el objeto
+            //recupera el id que genero la db y lo carga en el objeto
             if (insertado) {
-                ResultSet generadas = sentencia.getGeneratedKeys();
-                if (generadas.next()) {
-                    numeroOficial.setId_numero_oficial(generadas.getInt(1));
+                try (ResultSet generadas = sentencia.getGeneratedKeys()) {
+                    if (generadas.next()) {
+                        numeroOficial.setId_numero_oficial(generadas.getInt(1));
+                    }
                 }
             }
 
             return insertado;
 
         } catch (SQLException e) {
-            System.out.println("Error al registrar numero oficial");
-            throw new RuntimeException(e);
+            System.out.println("Error al registrar numero oficial: " + e.getMessage());
+            return false;
         }
     }
 
     public boolean editarNumOficial(Numero_oficial numeroOficial) {
-        try {
-            //1-se conecta a la db
-            Connection conexion = ConexionDB.obtenerConexion();
 
-            //2-arma la query
-            String query = "UPDATE numero_oficial SET numero_telefono = ?, nombre_entidad = ?, fecha_carga = ?, id_prefijo = ?, id_admin = ? WHERE id_numero_oficial = ?";
-            PreparedStatement sentencia = conexion.prepareStatement(query);
+        String query = "UPDATE numero_oficial SET numero_telefono = ?, nombre_entidad = ?, fecha_carga = ?, id_prefijo = ?, id_admin = ? WHERE id_numero_oficial = ?";
+
+        try (Connection conexion = ConexionDB.obtenerConexion();
+             PreparedStatement sentencia = conexion.prepareStatement(query)) {
+
             sentencia.setString(1, numeroOficial.getNumero_telefono());
             sentencia.setString(2, numeroOficial.getNombre_entidad());
             sentencia.setDate(3, Date.valueOf(numeroOficial.getFecha_carga()));
@@ -77,32 +98,78 @@ public class Numero_oficialDAO {
             sentencia.setInt(5, numeroOficial.getAdministrador().getId_administrador());
             sentencia.setInt(6, numeroOficial.getId_numero_oficial());
 
-            //3-ejecuta query
             return sentencia.executeUpdate() == 1;
 
         } catch (SQLException e) {
-            System.out.println("Error al editar numero oficial");
-            throw new RuntimeException(e);
+            System.out.println("Error al editar numero oficial: " + e.getMessage());
+            return false;
         }
     }
 
     public boolean eliminarNumOficial(int idNumeroOficial) {
-        try {
-            //1-se conecta a la db
-            Connection conexion = ConexionDB.obtenerConexion();
 
-            //2-arma la query
-            String query = "DELETE FROM numero_oficial WHERE id_numero_oficial = ?";
-            PreparedStatement sentencia = conexion.prepareStatement(query);
+        String query = "DELETE FROM numero_oficial WHERE id_numero_oficial = ?";
+
+        try (Connection conexion = ConexionDB.obtenerConexion();
+             PreparedStatement sentencia = conexion.prepareStatement(query)) {
+
             sentencia.setInt(1, idNumeroOficial);
-
-            //3-ejecuta query
             return sentencia.executeUpdate() == 1;
 
         } catch (SQLException e) {
-            System.out.println("Error al eliminar numero oficial");
-            throw new RuntimeException(e);
+            System.out.println("Error al eliminar numero oficial: " + e.getMessage());
+            return false;
         }
+    }
+
+    //busca un numero oficial por id (para cargar el formulario de edicion)
+    public Numero_oficial obtenerPorId(int idNumeroOficial) {
+
+        String query = """
+    SELECT no.id_numero_oficial,
+           no.numero_telefono,
+           no.nombre_entidad,
+           no.fecha_carga,
+           pp.id_prefijo,
+           pp.prefijo,
+           pp.nombre_pais,
+           no.id_admin
+    FROM numero_oficial no
+    INNER JOIN pais_prefijo pp
+        ON no.id_prefijo = pp.id_prefijo
+    WHERE no.id_numero_oficial = ?
+    """;
+
+        try (Connection conexion = ConexionDB.obtenerConexion();
+             PreparedStatement sentencia = conexion.prepareStatement(query)) {
+
+            sentencia.setInt(1, idNumeroOficial);
+
+            try (ResultSet rSet = sentencia.executeQuery()) {
+                if (rSet.next()) {
+                    Pais_prefijo prefijo = new Pais_prefijo(
+                            rSet.getInt("id_prefijo"),
+                            rSet.getString("prefijo"),
+                            rSet.getString("nombre_pais")
+                    );
+
+                    Administrador administrador = new Administrador();
+                    administrador.setId_administrador(rSet.getInt("id_admin"));
+
+                    return new Numero_oficial(
+                            rSet.getInt("id_numero_oficial"),
+                            rSet.getString("numero_telefono"),
+                            rSet.getString("nombre_entidad"),
+                            rSet.getDate("fecha_carga").toLocalDate(),
+                            prefijo,
+                            administrador
+                    );
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Error al buscar numero oficial: " + e.getMessage());
+        }
+        return null;
     }
 
     public List<Numero_oficial> listarNumOficiales() {

@@ -1,6 +1,7 @@
 package org.example;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class Reportes {
     int id_reporte;
@@ -88,5 +89,10 @@ public class Reportes {
 
     public void setNumero_reportado(Numero_reportado numero_reportado) {
         this.numero_reportado = numero_reportado;
+    }
+
+    //fecha lista para mostrar en la pagina (las JSP no saben formatear LocalDateTime)
+    public String getFecha_hora_texto() {
+        return fecha_hora == null ? "" : fecha_hora.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
     }
 }

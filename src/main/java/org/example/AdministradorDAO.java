@@ -28,6 +28,35 @@ public class AdministradorDAO {
         }
         return false;
     }
+    //LOGIN: devuelve el administrador si el email y la contraseña coinciden, o null si no
+    public Administrador buscarPorCredenciales(String email, String password) {
+
+        String query = "SELECT id_admin, email, password, nombre, apellido, telefono FROM administrador WHERE LOWER(email) = LOWER(?) AND password = ?";
+
+        try (Connection conexion = ConexionDB.obtenerConexion();
+            PreparedStatement sentencia = conexion.prepareStatement(query)) {
+
+            sentencia.setString(1, email.trim());
+            sentencia.setString(2, password);
+
+            try (ResultSet rSet = sentencia.executeQuery()) {
+                if (rSet.next()) {
+                    return new Administrador(
+                            rSet.getInt("id_admin"),
+                            rSet.getString("email"),
+                            rSet.getString("password"),
+                            rSet.getString("nombre"),
+                            rSet.getString("apellido"),
+                            rSet.getString("telefono")
+                    );
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Error al buscar administrador: " + e.getMessage());
+        }
+        return null;
+    }
+
     //REGISTRAR ADMINISTRADOR
     public boolean registrarAdministrador(Administrador administrador) {
 
