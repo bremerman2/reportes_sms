@@ -145,9 +145,12 @@ public class ReportesDAO {
         return reporte;
     }
 
-    public void consultarEstadisticas() {
+    //ESTADISTICAS: cantidad de reportes por numero, de mayor a menor
+    public List<Numero_reportado> consultarEstadisticas() {
 
-        String query = "SELECT nr.numero_telefono, COUNT(*) AS cantidad_reportes " +
+        List<Numero_reportado> lista = new ArrayList<>();
+
+        String query = "SELECT nr.id_num_reportado, nr.numero_telefono, COUNT(*) AS cantidad_reportes " +
                 "FROM reporte r " +
                 "JOIN numero_reportado nr ON r.id_num_reportado = nr.id_num_reportado " +
                 "GROUP BY nr.id_num_reportado, nr.numero_telefono " +
@@ -158,11 +161,16 @@ public class ReportesDAO {
              ResultSet rSet = sentencia.executeQuery();) {
 
             while (rSet.next()) {
-                System.out.println(rSet.getString("numero_telefono") + " - " + rSet.getInt("cantidad_reportes") + " reportes");
+                lista.add(new Numero_reportado(
+                        rSet.getInt("id_num_reportado"),
+                        rSet.getString("numero_telefono"),
+                        rSet.getInt("cantidad_reportes")
+                ));
             }
 
         } catch (SQLException e) {
             System.out.println("Error al consultar estadisticas");
         }
+        return lista;
     }
 }

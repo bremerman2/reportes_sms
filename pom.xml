@@ -7,6 +7,8 @@
     <groupId>org.example</groupId>
     <artifactId>reportes_sms</artifactId>
     <version>1.0-SNAPSHOT</version>
+    <name>reportes_sms</name>
+    <packaging>war</packaging>
 
     <properties>
         <maven.compiler.source>26</maven.compiler.source>
@@ -15,11 +17,43 @@
     </properties>
 
     <dependencies>
+        <!-- API de Servlets (la provee Tomcat, por eso "provided") -->
+        <dependency>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+            <version>6.1.0</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- JSTL: API + implementación (Tomcat no la trae) -->
+        <dependency>
+            <groupId>jakarta.servlet.jsp.jstl</groupId>
+            <artifactId>jakarta.servlet.jsp.jstl-api</artifactId>
+            <version>3.0.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.web</groupId>
+            <artifactId>jakarta.servlet.jsp.jstl</artifactId>
+            <version>3.0.1</version>
+        </dependency>
+
+        <!-- Driver de MariaDB -->
         <dependency>
             <groupId>org.mariadb.jdbc</groupId>
             <artifactId>mariadb-java-client</artifactId>
             <version>3.5.10</version>
         </dependency>
     </dependencies>
+
+    <build>
+        <finalName>reportes_sms</finalName>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>3.4.0</version>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>
