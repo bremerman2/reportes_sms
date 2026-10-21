@@ -42,9 +42,22 @@
         </div>
         <h2 class="h6 fw-bold">Contenido del SMS</h2>
         <p class="mb-3" style="white-space: pre-wrap; overflow-wrap: anywhere;"><c:out value="${r.cuerpoSms}" /></p>
-        <c:if test="${not empty r.capturaPantalla}">
-          <p class="small"><span class="fw-semibold">Referencia de captura:</span> <c:out value="${r.capturaPantalla}" /></p>
-        </c:if>
+<c:if test="${not empty r.capturaPantalla}">
+  <div class="mb-3">
+    <h3 class="h6 fw-bold mb-2">Captura del SMS</h3>
+
+    <a href="<c:out value='${r.capturaPantalla}' />"
+       target="_blank"
+       rel="noopener noreferrer">
+      <img
+        src="<c:out value='${r.capturaPantalla}' />"
+        alt="Captura del SMS reportado"
+        class="img-fluid rounded border"
+        loading="lazy"
+        style="max-width: 100%; max-height: 420px; object-fit: contain;">
+    </a>
+  </div>
+</c:if>
         <div class="border-top pt-3 mt-3">
           <h3 class="h6 fw-bold mb-3"><span class="me-1">Comentarios</span><span class="badge rounded-pill text-bg-light"><c:out value="${r.cantidadComentarios}" /></span></h3>
           <c:forEach var="c" items="${r.comentarios}">
