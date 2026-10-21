@@ -2,7 +2,10 @@ package org.example;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.*;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 
 @WebServlet("/reportar")
@@ -12,6 +15,9 @@ public class ReportarSmsServlet extends HttpServlet {
         request.setAttribute("tituloPagina", "Reportar SMS");
         request.setAttribute("menuActivo", "reportar");
         request.setAttribute("prefijos", new Pais_prefijoDAO().obtenerPrefijos());
+        request.setAttribute("cloudinaryConfigurada", ConfiguracionCloudinary.isConfigurada());
+        request.setAttribute("cloudinaryCloudName", ConfiguracionCloudinary.getCloudName());
+        request.setAttribute("cloudinaryUploadPreset", ConfiguracionCloudinary.getUploadPreset());
         request.getRequestDispatcher("/WEB-INF/vistas/comunidad/reportar.jsp").forward(request, response);
     }
 
@@ -20,9 +26,11 @@ public class ReportarSmsServlet extends HttpServlet {
         Usuario usuario = (Usuario) request.getSession(false).getAttribute("usuarioLogueado");
         String telefono = UtilWeb.texto(request, "numero_telefono");
         String cuerpo = UtilWeb.texto(request, "cuerpo_sms");
-        String captura = UtilWeb.texto(request, "captura_pantalla");
         Integer idPrefijo = UtilWeb.entero(request, "id_prefijo");
+        String capturaUrl = UtilWeb.texto(request, "captura_url");
+        String capturaPublicId = UtilWeb.texto(request, "captura_public_id");
         String error = null;
+
         if (telefono.isBlank() || cuerpo.isBlank() || idPrefijo == null) {
             error = "Ingresá el número, el prefijo y el contenido del SMS.";
         } else if (telefono.length() > 20 || !telefono.matches("[+0-9() .-]{5,20}")) {
@@ -30,6 +38,16 @@ public class ReportarSmsServlet extends HttpServlet {
         } else if (cuerpo.length() > 10000) {
             error = "El contenido del SMS es demasiado largo.";
         }
+
+        if (error == null) {
+            try {
+                ImagenCloudinary.validar(capturaUrl, capturaPublicId);
+            } catch (IllegalArgumentException e) {
+                error = e.getMessage();
+            }
+        }
+
+        String captura = capturaUrl == null || capturaUrl.isBlank() ? null : capturaUrl;
         if (error == null && new ComunidadDAO().registrarReporte(usuario.getId_usuario(), telefono, idPrefijo, cuerpo, captura)) {
             UtilWeb.mensajeExito(request, "Tu reporte se publicó en la comunidad y quedó pendiente de revisión.");
             response.sendRedirect(request.getContextPath() + "/inicio");
@@ -39,9 +57,14 @@ public class ReportarSmsServlet extends HttpServlet {
         request.setAttribute("error", error);
         request.setAttribute("telefono", telefono);
         request.setAttribute("cuerpoSms", cuerpo);
-        request.setAttribute("captura", captura);
+        request.setAttribute("capturaUrl", capturaUrl);
+        request.setAttribute("capturaPublicId", capturaPublicId);
         request.setAttribute("prefijos", new Pais_prefijoDAO().obtenerPrefijos());
         request.setAttribute("tituloPagina", "Reportar SMS");
+        request.setAttribute("menuActivo", "reportar");
+        request.setAttribute("cloudinaryConfigurada", ConfiguracionCloudinary.isConfigurada());
+        request.setAttribute("cloudinaryCloudName", ConfiguracionCloudinary.getCloudName());
+        request.setAttribute("cloudinaryUploadPreset", ConfiguracionCloudinary.getUploadPreset());
         request.getRequestDispatcher("/WEB-INF/vistas/comunidad/reportar.jsp").forward(request, response);
     }
 }
