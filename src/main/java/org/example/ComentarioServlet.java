@@ -19,6 +19,6 @@ public class ComentarioServlet extends HttpServlet {
         } else {
             UtilWeb.mensajeError(request, "No se pudo publicar el comentario.");
         }
-        response.sendRedirect(request.getContextPath() + "/inicio#reporte-" + (idReporte == null ? "comunidad" : idReporte));
+        response.sendRedirect(request.getContextPath() + "/comunidad#reporte-" + (idReporte == null ? "comunidad" : idReporte));
     }
 }

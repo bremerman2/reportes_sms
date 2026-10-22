@@ -42,7 +42,8 @@
     <div class="container">
         <a class="navbar-brand fw-semibold" href="${ctx}/inicio">Reportes SMS</a>
         <div class="d-flex align-items-center gap-3 flex-wrap">
-            <a class="nav-link text-white ${menuActivo == 'inicio' ? 'fw-bold' : ''}" href="${ctx}/inicio">Comunidad</a>
+            <a class="nav-link text-white ${menuActivo == 'inicio' ? 'fw-bold' : ''}" href="${ctx}/inicio">Inicio</a>
+            <a class="nav-link text-white ${menuActivo == 'comunidad' ? 'fw-bold' : ''}" href="${ctx}/comunidad">Comunidad</a>
             <a class="nav-link text-white ${menuActivo == 'reportar' ? 'fw-bold' : ''}" href="${ctx}/reportar">Reportar SMS</a>
             <a class="nav-link text-white" href="${ctx}/perfil">Mi perfil</a>
             <span class="navbar-text">Hola, <c:out value="${sessionScope.usuarioLogueado.nombre}" /></span>

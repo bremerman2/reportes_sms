@@ -1,82 +1,114 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <c:set var="tituloPagina" value="Comunidad" />
-<c:set var="menuActivo" value="inicio" />
-<%@ include file="/WEB-INF/vistas/layout/header.jspf" %>
+<c:set var="menuActivo" value="comunidad" />
+<%@ include file="/WEB-INF/vistas/layout/usuario-inicio.jspf" %>
 
-<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
-  <div>
-    <h1 class="h3 fw-bold mb-1">Reportes de la comunidad</h1>
-    <p class="text-body-secondary mb-0">Compartí experiencias y ayudá a identificar mensajes sospechosos. Los reportes nuevos quedan pendientes de revisión.</p>
-  </div>
-  <a href="${ctx}/reportar" class="btn btn-primary">+ Reportar un SMS</a>
+<p class="as-ruta"><a href="${ctx}/inicio">Inicio</a><span class="as-sep">/</span>Comunidad</p>
+
+<div class="as-titulo">
+    <div>
+        <h1>Comunidad</h1>
+        <p class="as-descripcion">Reportes completos con sus comentarios. Compartí si recibiste un mensaje parecido; los reportes nuevos quedan pendientes de revisión.</p>
+    </div>
+    <a class="as-boton as-boton-primario" href="${ctx}/reportar">+ Reportar SMS</a>
 </div>
+
+<%-- Búsqueda por número o por texto del SMS --%>
+<form class="as-filtros" action="${ctx}/comunidad" method="get" role="search">
+    <div class="as-campo as-campo-ancho">
+        <label for="q">Buscar por número o texto del SMS</label>
+        <input type="search" id="q" name="q" maxlength="100"
+               placeholder="Ej.: 91 204 o cuenta bloqueada" value="<c:out value='${busqueda}' />">
+    </div>
+    <div class="as-filtros-acciones">
+        <button class="as-boton as-boton-secundario" type="submit">Buscar</button>
+        <a class="as-link-rojo" href="${ctx}/comunidad">Limpiar</a>
+    </div>
+</form>
+
+<c:if test="${not empty busqueda}">
+    <div class="as-resultados-cabecera">
+        <strong>${reportesComunidad.size()} ${reportesComunidad.size() == 1 ? 'resultado' : 'resultados'} para “<c:out value="${busqueda}" />”</strong>
+        <span>Orden: Fecha, más recientes primero</span>
+    </div>
+</c:if>
 
 <c:if test="${empty reportesComunidad}">
-  <div class="card border-0 shadow-sm"><div class="card-body text-center py-5">
-    <h2 class="h5">Todavía no hay reportes</h2><p class="text-body-secondary">Sé la primera persona en compartir un SMS sospechoso con la comunidad.</p>
-    <a class="btn btn-primary" href="${ctx}/reportar">Reportar un SMS</a>
-  </div></div>
+    <div class="as-vacio">
+        <c:choose>
+            <c:when test="${not empty busqueda}">
+                <h2>No hay reportes que coincidan</h2>
+                <p>Probá con otra palabra del mensaje o con parte del número, o tocá Limpiar para ver todos.</p>
+            </c:when>
+            <c:otherwise>
+                <h2>Todavía no hay reportes</h2>
+                <p>Sé la primera persona en compartir un SMS sospechoso con la comunidad.</p>
+            </c:otherwise>
+        </c:choose>
+    </div>
 </c:if>
 
-<div class="row justify-content-center g-4">
+<div class="as-muro">
 <c:forEach var="r" items="${reportesComunidad}">
-  <div class="col-12 col-lg-9" id="reporte-${r.idReporte}">
-    <article class="card border-0 shadow-sm">
-      <div class="card-body p-4">
-        <div class="d-flex justify-content-between align-items-start gap-3 mb-3">
-          <div>
-            <div class="fw-semibold"><c:out value="${r.nombreUsuario}" /></div>
-            <div class="text-body-secondary small"><c:out value="${r.fechaTexto}" /></div>
-          </div>
-          <c:choose>
-            <c:when test="${r.estado == 'confirmado'}"><span class="badge text-bg-danger">Confirmado</span></c:when>
-            <c:when test="${r.estado == 'falso_positivo'}"><span class="badge text-bg-secondary">Falso positivo</span></c:when>
-            <c:otherwise><span class="badge text-bg-warning">Pendiente de revisión</span></c:otherwise>
-          </c:choose>
-        </div>
-        <div class="rounded-3 bg-body-tertiary p-3 mb-3">
-          <div class="small text-body-secondary mb-1">Número reportado</div>
-          <div class="fw-semibold"><c:out value="${r.numeroTelefono}" /></div>
-          <div class="small text-body-secondary">Reportes asociados a este número: <c:out value="${r.cantidadReportesNumero}" /></div>
-        </div>
-        <h2 class="h6 fw-bold">Contenido del SMS</h2>
-        <p class="mb-3" style="white-space: pre-wrap; overflow-wrap: anywhere;"><c:out value="${r.cuerpoSms}" /></p>
-<c:if test="${not empty r.capturaPantalla}">
-  <div class="mb-3">
-    <h3 class="h6 fw-bold mb-2">Captura del SMS</h3>
+    <article class="as-tarjeta" id="reporte-${r.idReporte}">
 
-    <a href="<c:out value='${r.capturaPantalla}' />"
-       target="_blank"
-       rel="noopener noreferrer">
-      <img
-        src="<c:out value='${r.capturaPantalla}' />"
-        alt="Captura del SMS reportado"
-        class="img-fluid rounded border"
-        loading="lazy"
-        style="max-width: 100%; max-height: 420px; object-fit: contain;">
-    </a>
-  </div>
-</c:if>
-        <div class="border-top pt-3 mt-3">
-          <h3 class="h6 fw-bold mb-3"><span class="me-1">Comentarios</span><span class="badge rounded-pill text-bg-light"><c:out value="${r.cantidadComentarios}" /></span></h3>
-          <c:forEach var="c" items="${r.comentarios}">
-            <div class="border-start border-3 ps-3 mb-3">
-              <div class="d-flex flex-wrap justify-content-between gap-2"><span class="fw-semibold small"><c:out value="${c.nombreUsuario}" /></span><span class="text-body-secondary small"><c:out value="${c.fechaTexto}" /></span></div>
-              <p class="mb-0 mt-1" style="white-space: pre-wrap; overflow-wrap: anywhere;"><c:out value="${c.comentario}" /></p>
+        <div class="as-tarjeta-cabecera">
+            <div>
+                <h2 class="as-tarjeta-numero"><c:out value="${r.numeroTelefono}" /></h2>
+                <p class="as-tarjeta-meta">
+                    Reportado por <c:out value="${r.nombreUsuario}" /> · <c:out value="${r.fechaTexto}" /> ·
+                    ${r.cantidadReportesNumero} ${r.cantidadReportesNumero == 1 ? 'reporte' : 'reportes'} de este número
+                </p>
             </div>
-          </c:forEach>
-          <c:if test="${empty r.comentarios}"><p class="text-body-secondary small">Todavía no hay comentarios. Compartí información útil y respetuosa.</p></c:if>
-          <form action="${ctx}/comentar" method="post" class="mt-3">
-            <input type="hidden" name="id_reporte" value="${r.idReporte}">
-            <label class="form-label small fw-semibold" for="comentario-${r.idReporte}">Agregar un comentario</label>
-            <textarea class="form-control mb-2" id="comentario-${r.idReporte}" name="comentario" rows="2" maxlength="2000" placeholder="¿Recibiste un mensaje similar? Compartí tu experiencia…" required></textarea>
-            <div class="text-end"><button class="btn btn-outline-primary btn-sm" type="submit">Publicar comentario</button></div>
-          </form>
+            <c:choose>
+                <c:when test="${r.estado == 'confirmado'}"><span class="as-estado as-estado-confirmado">Confirmado</span></c:when>
+                <c:when test="${r.estado == 'falso_positivo'}"><span class="as-estado as-estado-falso">Falso positivo</span></c:when>
+                <c:otherwise><span class="as-estado as-estado-pendiente">Pendiente</span></c:otherwise>
+            </c:choose>
         </div>
-      </div>
+
+        <h3 class="as-subtitulo">Contenido del SMS</h3>
+        <p class="as-sms"><c:out value="${r.cuerpoSms}" /></p>
+
+        <c:if test="${not empty r.capturaPantalla}">
+            <div class="as-captura">
+                <h3 class="as-subtitulo">Captura del SMS</h3>
+                <a href="<c:out value='${r.capturaPantalla}' />" target="_blank" rel="noopener noreferrer">
+                    <img src="<c:out value='${r.capturaPantalla}' />" alt="Captura del SMS reportado" loading="lazy">
+                </a>
+            </div>
+        </c:if>
+
+        <section class="as-comentarios" aria-label="Comentarios">
+            <h3 class="as-subtitulo">Comentarios (${r.cantidadComentarios})</h3>
+
+            <c:forEach var="com" items="${r.comentarios}">
+                <div class="as-comentario">
+                    <div class="as-comentario-cabecera">
+                        <strong><c:out value="${com.nombreUsuario}" /></strong>
+                        <span><c:out value="${com.fechaTexto}" /></span>
+                    </div>
+                    <p><c:out value="${com.comentario}" /></p>
+                </div>
+            </c:forEach>
+            <c:if test="${empty r.comentarios}">
+                <p class="as-ayuda">Todavía no hay comentarios. Compartí información útil y respetuosa.</p>
+            </c:if>
+
+            <form class="as-form as-comentar" action="${ctx}/comentar" method="post">
+                <input type="hidden" name="id_reporte" value="${r.idReporte}">
+                <div class="as-campo">
+                    <label for="comentario-${r.idReporte}">Agregar un comentario</label>
+                    <textarea id="comentario-${r.idReporte}" name="comentario" rows="2" maxlength="2000"
+                              placeholder="¿Recibiste un mensaje similar? Contalo acá…" required></textarea>
+                </div>
+                <div class="as-comentar-acciones">
+                    <button class="as-boton as-boton-secundario" type="submit">Publicar comentario</button>
+                </div>
+            </form>
+        </section>
     </article>
-  </div>
 </c:forEach>
 </div>
-<%@ include file="/WEB-INF/vistas/layout/footer.jspf" %>
+<%@ include file="/WEB-INF/vistas/layout/usuario-fin.jspf" %>

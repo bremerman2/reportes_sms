@@ -6,7 +6,7 @@ import jakarta.servlet.http.*;
 import java.io.IOException;
 
 @WebServlet("/registro-usuario")
-public class RegistroUsuarioServlet extends HttpServlet {
+public class RegistrarUsuarioServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         HttpSession session = request.getSession(false);

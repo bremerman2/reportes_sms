@@ -11,7 +11,7 @@ public class LoginUsuarioServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         HttpSession session = request.getSession(false);
         if (session != null && session.getAttribute("usuarioLogueado") != null) {
-            response.sendRedirect(request.getContextPath() + "/perfil");
+            response.sendRedirect(request.getContextPath() + "/inicio");
             return;
         }
         request.setAttribute("tituloPagina", "Ingresar como usuario");
@@ -30,7 +30,7 @@ public class LoginUsuarioServlet extends HttpServlet {
             if (anterior != null) anterior.invalidate();
             HttpSession session = request.getSession(true);
             session.setAttribute("usuarioLogueado", usuario);
-            response.sendRedirect(request.getContextPath() + "/perfil");
+            response.sendRedirect(request.getContextPath() + "/inicio");
         } else {
             request.setAttribute("error", "No se pudo iniciar sesión. Verificá tus datos o comprobá si tu cuenta está bloqueada.");
             request.setAttribute("email", email);

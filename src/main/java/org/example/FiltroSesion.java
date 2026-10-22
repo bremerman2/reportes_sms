@@ -29,8 +29,8 @@ public class FiltroSesion extends HttpFilter {
                 || ruta.startsWith("/numeros-oficiales") || ruta.startsWith("/prefijos")
                 || ruta.startsWith("/usuarios") || ruta.startsWith("/administradores");
 
-        boolean rutaUsuario = ruta.equals("/inicio") || ruta.equals("/perfil") || ruta.equals("/logout-usuario")
-                || ruta.equals("/reportar") || ruta.equals("/comentar");
+        boolean rutaUsuario = ruta.equals("/") || ruta.equals("/inicio") || ruta.equals("/perfil") || ruta.equals("/logout-usuario")
+                || ruta.equals("/reportar") || ruta.equals("/comentar") || ruta.equals("/comunidad");
 
         if (esPublica || (admin && !usuario && (rutaAdmin || ruta.equals("/logout") || ruta.equals("/")))
                 || (usuario && !admin && rutaUsuario)) {
@@ -38,9 +38,13 @@ public class FiltroSesion extends HttpFilter {
         } else if (admin && !usuario) {
             response.sendRedirect(request.getContextPath() + "/inicio");
         } else if (usuario && !admin) {
-            response.sendRedirect(request.getContextPath() + "/perfil");
-        } else {
+            response.sendRedirect(request.getContextPath() + "/inicio");
+        } else if (rutaAdmin && !ruta.equals("/inicio")) {
+            // Sin sesión y pidió una página de administración: va al login de administrador
             response.sendRedirect(request.getContextPath() + "/login");
+        } else {
+            // Sin sesión en cualquier otra página (incluida la raíz): arranca en el login de usuario
+            response.sendRedirect(request.getContextPath() + "/login-usuario");
         }
     }
 }
