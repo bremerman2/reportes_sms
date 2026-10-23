@@ -1,0 +1,17 @@
+        </main>
+    </div>
+</div>
+
+<script>
+    // Abre y cierra el menú en pantallas chicas
+    (function () {
+        const menu = document.getElementById('menu');
+        const boton = menu.querySelector('.as-menu-boton');
+        boton.addEventListener('click', function () {
+            const abierto = menu.classList.toggle('abierto');
+            boton.setAttribute('aria-expanded', abierto);
+        });
+    })();
+</script>
+</body>
+</html>

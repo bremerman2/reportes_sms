@@ -1,0 +1,60 @@
+<%--
+  Parte de arriba del panel de usuario (AlertaSMS v2).
+  Antes de incluirlo, cada página define:
+    <c:set var="tituloPagina" value="..." />
+    <c:set var="menuActivo"  value="inicio | reportar | comunidad | perfil" />
+  Se cierra con layout/usuario-fin.jspf
+--%>
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
+<c:set var="ctx" value="${pageContext.request.contextPath}" />
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title><c:out value="${tituloPagina}" /> · AlertaSMS</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="${ctx}/estilos/alertasms.css">
+</head>
+<body>
+<div class="as-app">
+
+    <%-- 1 · Encabezado --%>
+    <header class="as-encabezado">
+        <a class="as-marca" href="${ctx}/inicio">AlertaSMS<span>Mi cuenta</span></a>
+        <div class="as-sesion">
+            <span>Usuario: <strong><c:out value="${sessionScope.usuarioLogueado.nombre} ${sessionScope.usuarioLogueado.apellido}" /></strong></span>
+            <a class="as-link-rojo" href="${ctx}/logout-usuario">Cerrar sesión</a>
+        </div>
+    </header>
+
+    <div class="as-cuerpo">
+
+        <%-- 2 · Menú (en pantallas chicas se pliega en un botón) --%>
+        <nav class="as-menu" id="menu" aria-label="Menú principal">
+            <p class="as-menu-titulo">Menú</p>
+            <button class="as-menu-boton" type="button" aria-expanded="false" aria-controls="menu-lista">
+                Menú <em><c:out value="${tituloPagina}" /> ▾</em>
+            </button>
+            <ul id="menu-lista">
+                <li><a href="${ctx}/inicio" ${menuActivo == 'inicio' ? 'aria-current="page"' : ''}>Inicio</a></li>
+                <li><a href="${ctx}/reportar" ${menuActivo == 'reportar' ? 'aria-current="page"' : ''}>Reportar SMS</a></li>
+                <li><a href="${ctx}/comunidad" ${menuActivo == 'comunidad' ? 'aria-current="page"' : ''}>Comunidad</a></li>
+                <li><a href="${ctx}/perfil" ${menuActivo == 'perfil' ? 'aria-current="page"' : ''}>Mis datos</a></li>
+            </ul>
+        </nav>
+
+        <main class="as-contenido">
+
+            <%-- Mensajes que dejan los servlets antes del redirect (se muestran una sola vez) --%>
+            <c:if test="${not empty sessionScope.mensajeExito}">
+                <div class="as-aviso as-aviso-exito" role="status"><c:out value="${sessionScope.mensajeExito}" /></div>
+                <c:remove var="mensajeExito" scope="session" />
+            </c:if>
+            <c:if test="${not empty sessionScope.mensajeError}">
+                <div class="as-aviso as-aviso-error" role="alert"><c:out value="${sessionScope.mensajeError}" /></div>
+                <c:remove var="mensajeError" scope="session" />
+            </c:if>
