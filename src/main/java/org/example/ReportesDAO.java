@@ -39,7 +39,8 @@ public class ReportesDAO {
             return insertado;
 
         } catch (SQLException e) {
-            System.out.println("Error al registrar reporte");
+            System.err.println("Error al registrar reporte: " + e.getMessage());
+            e.printStackTrace();
             return false;
         }
     }

@@ -29,6 +29,8 @@ public class ReportarSmsServlet extends HttpServlet {
         Integer idPrefijo = UtilWeb.entero(request, "id_prefijo");
         String capturaUrl = UtilWeb.texto(request, "captura_url");
         String capturaPublicId = UtilWeb.texto(request, "captura_public_id");
+        //capturar notificaciones
+        boolean quiereNotificaciones = request.getParameter("notificar_actualizaciones") != null;
         String error = null;
 
         if (telefono.isBlank() || cuerpo.isBlank() || idPrefijo == null) {
@@ -48,11 +50,23 @@ public class ReportarSmsServlet extends HttpServlet {
         }
 
         String captura = capturaUrl == null || capturaUrl.isBlank() ? null : capturaUrl;
-        if (error == null && new ComunidadDAO().registrarReporte(usuario.getId_usuario(), telefono, idPrefijo, cuerpo, captura)) {
-            UtilWeb.mensajeExito(request, "Tu reporte se publicó en la comunidad y quedó pendiente de revisión.");
-            response.sendRedirect(request.getContextPath() + "/inicio");
-            return;
+
+        //recibe id y se guarda en suscripcion
+        if (error == null) {
+            int idReporteGenerado = new ComunidadDAO().registrarReporte(usuario.getId_usuario(), telefono, idPrefijo, cuerpo, captura);
+
+            if (idReporteGenerado > 0) {
+                if (quiereNotificaciones) {
+                    Suscripcion suscripcion = new Suscripcion(usuario.getId_usuario(), idReporteGenerado);
+                    new SuscripcionDAO().registrarSuscripcion(suscripcion);
+                }
+
+                UtilWeb.mensajeExito(request, "Tu reporte se publicó en la comunidad y quedó pendiente de revisión.");
+                response.sendRedirect(request.getContextPath() + "/inicio");
+                return;
+            }
         }
+
         if (error == null) error = "No se pudo guardar el reporte. Verificá el prefijo seleccionado y la estructura de la base de datos.";
         request.setAttribute("error", error);
         request.setAttribute("telefono", telefono);

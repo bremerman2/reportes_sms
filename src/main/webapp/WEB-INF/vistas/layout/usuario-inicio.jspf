@@ -7,7 +7,19 @@
 --%>
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
+<%@ page import="org.example.NotificacionDAO" %>
+<%@ page import="org.example.Usuario" %>
 <c:set var="ctx" value="${pageContext.request.contextPath}" />
+<%
+    //Contar las notificaciones no leidas
+    Usuario user = (Usuario) session.getAttribute("usuarioLogueado");
+    int cantNotificaciones = 0;
+    if (user != null) {
+        NotificacionDAO ndao = new NotificacionDAO();
+        cantNotificaciones = ndao.contarNoLeidas(user.getId_usuario());
+    }
+    request.setAttribute("cantNotificaciones", cantNotificaciones);
+%>
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -25,7 +37,18 @@
     <%-- 1 · Encabezado --%>
     <header class="as-encabezado">
         <a class="as-marca" href="${ctx}/inicio">AlertaSMS<span>Mi cuenta</span></a>
-        <div class="as-sesion">
+        <div class="as-sesion" style="display: flex; align-items: center; gap: 15px;">
+
+            <!-- Notificaciones -->
+            <a href="${ctx}/notificaciones" title="Notificaciones" class="as-nav-notificaciones">
+                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="currentColor" class="bi bi-bell-fill" viewBox="0 0 16 16">
+                    <path d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2zm.995-14.901a1 1 0 1 0-1.99 0A5 5 0 0 0 3 6c0 1.098-.5 6-2 7h14c-1.5-1-2-5.902-2-7 0-2.42-1.72-4.44-4.005-4.901z"/>
+                </svg>
+                <c:if test="${cantNotificaciones > 0}">
+                    <span class="as-badge-notificacion">${cantNotificaciones}</span>
+                </c:if>
+            </a>
+
             <span>Usuario: <strong><c:out value="${sessionScope.usuarioLogueado.nombre} ${sessionScope.usuarioLogueado.apellido}" /></strong></span>
             <a class="as-link-rojo" href="${ctx}/logout-usuario">Cerrar sesión</a>
         </div>
@@ -51,10 +74,10 @@
 
             <%-- Mensajes que dejan los servlets antes del redirect (se muestran una sola vez) --%>
             <c:if test="${not empty sessionScope.mensajeExito}">
-                <div class="as-aviso as-aviso-exito" role="status"><c:out value="${sessionScope.mensajeExito}" /></div>
+            <div class="as-aviso as-aviso-exito" role="status"><c:out value="${sessionScope.mensajeExito}" /></div>
                 <c:remove var="mensajeExito" scope="session" />
             </c:if>
             <c:if test="${not empty sessionScope.mensajeError}">
-                <div class="as-aviso as-aviso-error" role="alert"><c:out value="${sessionScope.mensajeError}" /></div>
+            <div class="as-aviso as-aviso-error" role="alert"><c:out value="${sessionScope.mensajeError}" /></div>
                 <c:remove var="mensajeError" scope="session" />
             </c:if>

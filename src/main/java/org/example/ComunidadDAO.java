@@ -86,7 +86,7 @@ public class ComunidadDAO {
         return lista;
     }
 
-    public boolean registrarReporte(int idUsuario, String telefono, int idPrefijo, String cuerpoSms, String captura) {
+    public int registrarReporte(int idUsuario, String telefono, int idPrefijo, String cuerpoSms, String captura) {
         String buscarNumero = "SELECT id_num_reportado FROM numero_reportado WHERE numero_telefono = ?";
         String insertarNumero = "INSERT INTO numero_reportado (numero_telefono, cantidad_reportes, id_prefijo) VALUES (?, 0, ?)";
         String insertarReporte = "INSERT INTO reporte (fecha_hora, cuerpo_sms, captura_pantalla, es_manual, estado_reporte, id_usuario, id_num_reportado) VALUES (?, ?, ?, FALSE, 'pendiente', ?, ?)";
@@ -114,30 +114,38 @@ public class ComunidadDAO {
                         }
                     }
                 }
-                try (PreparedStatement ps = con.prepareStatement(insertarReporte)) {
+                int idReporteGenerado = -1;
+                try (PreparedStatement ps = con.prepareStatement(insertarReporte, Statement.RETURN_GENERATED_KEYS)) {
                     ps.setTimestamp(1, Timestamp.valueOf(LocalDateTime.now()));
                     ps.setString(2, cuerpoSms);
                     if (captura == null || captura.isBlank()) ps.setNull(3, Types.VARCHAR); else ps.setString(3, captura);
                     ps.setInt(4, idUsuario);
                     ps.setInt(5, idNumero);
                     ps.executeUpdate();
+
+                    //es necesario obtener el id del reporte recien generado para poder añadirlo a la suscripcion automatica
+                    try (ResultSet keysReporte = ps.getGeneratedKeys()) {
+                        if (!keysReporte.next()) throw new SQLException("No se generó el ID del reporte.");
+                        idReporteGenerado = keysReporte.getInt(1);
+                    }
                 }
                 try (PreparedStatement ps = con.prepareStatement(incrementar)) {
                     ps.setInt(1, idNumero);
                     ps.executeUpdate();
                 }
                 con.commit();
-                return true;
+                return idReporteGenerado;//se devuelve el id en lugar de un bool
+
             } catch (SQLException e) {
                 con.rollback();
                 System.err.println("Error SQL al crear reporte comunitario: " + e.getMessage());
-                return false;
+                return -1;
             } finally {
                 con.setAutoCommit(true);
             }
         } catch (SQLException e) {
             System.err.println("Error de conexión al crear reporte comunitario: " + e.getMessage());
-            return false;
+            return -1;
         }
     }
 

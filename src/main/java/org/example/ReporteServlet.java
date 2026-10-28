@@ -5,6 +5,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.util.List;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -107,6 +108,9 @@ public class ReporteServlet extends HttpServlet {
 
         if (id != null && new ReportesDAO().confirmarReporte(id)) {
             UtilWeb.mensajeExito(request, "Reporte confirmado correctamente");
+
+            //Enviar notificaciones a los seguidores
+            notificarSuscriptores(request, id, "El reporte que esta suscrito fue verificado y marcado como CONFIRMADO.");
         } else {
             UtilWeb.mensajeError(request, "No se pudo confirmar el reporte (verificar que exista y esté pendiente)");
         }
@@ -119,16 +123,34 @@ public class ReporteServlet extends HttpServlet {
 
         if (id != null && new ReportesDAO().gestionarFalsoPositivo(id)) {
             UtilWeb.mensajeExito(request, "Reporte marcado como falso positivo");
+
+            notificarSuscriptores(request, id, "El reporte que esta suscrito fue marcado como FALSO POSITIVO.");
         } else {
             UtilWeb.mensajeError(request, "No se pudo actualizar el reporte");
         }
         volverAlListado(request, response);
     }
 
-    // vuelve al listado manteniendo el filtro que estaba aplicado
+    //vuelve al listado manteniendo el filtro que estaba aplicado
     private void volverAlListado(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String estado = UtilWeb.texto(request, "estadoFiltro");
         String url = request.getContextPath() + "/reportes" + (estado.isEmpty() ? "" : "?estado=" + estado);
         response.sendRedirect(url);
+    }
+
+    private void notificarSuscriptores(HttpServletRequest request, int idReporte, String mensaje) {
+        SuscripcionDAO suscripcionDAO = new SuscripcionDAO();
+        NotificacionDAO notificacionDAO = new NotificacionDAO();
+        List<Integer> idsSuscriptos = suscripcionDAO.obtenerUsuariosSuscriptos(idReporte);
+
+        for (Integer idUsuario : idsSuscriptos) {
+            Notificacion notif = new Notificacion();
+            notif.setId_usuario(idUsuario);
+            notif.setMensaje(mensaje);
+            notif.setLeido(false);
+            notif.setEnlace(request.getContextPath() + "/comunidad#reporte-" + idReporte);
+
+            notificacionDAO.registrarNotificacion(notif);
+        }
     }
 }

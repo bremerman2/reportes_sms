@@ -16,6 +16,7 @@ public class ReporteComunidad {
     private String numeroTelefono;
     private int cantidadReportesNumero;
     private List<ComentarioReporte> comentarios = new ArrayList<>();
+    private boolean suscrito;
 
     public int getIdReporte() { return idReporte; }
     public void setIdReporte(int idReporte) { this.idReporte = idReporte; }
@@ -41,4 +42,6 @@ public class ReporteComunidad {
     public int getCantidadComentarios() { return comentarios == null ? 0 : comentarios.size(); }
     public List<ComentarioReporte> getComentarios() { return comentarios; }
     public void setComentarios(List<ComentarioReporte> comentarios) { this.comentarios = comentarios; }
+    public boolean isSuscrito() {return suscrito;}
+    public void setSuscrito(boolean suscrito) {this.suscrito = suscrito;}
 }

@@ -72,7 +72,22 @@
             <img id="capturaVistaPrevia" class="as-vista-previa" alt="Vista previa de la captura seleccionada" hidden>
         </div>
     </fieldset>
-
+        <fieldset class="as-seccion">
+            <legend class="as-legend-inline">
+                <span>Notificaciones</span>
+                <input type="checkbox"
+                       id="notificar_actualizaciones"
+                       name="notificar_actualizaciones"
+                       value="true"
+                       class="as-checkbox-chico"
+                ${param.notificar_actualizaciones == null || param.notificar_actualizaciones == 'true' ? 'checked' : ''}>
+            </legend>
+            <div class="as-campo">
+                <label for="notificar_actualizaciones" class="as-texto-descriptivo">
+                    Quiero recibir notificaciones sobre las actualizaciones de este reporte.
+                </label>
+            </div>
+        </fieldset>
     <%-- 7 · Acciones: Guardar y Cancelar al final --%>
     <div class="as-acciones">
         <button class="as-boton as-boton-primario" type="submit">Publicar reporte</button>
