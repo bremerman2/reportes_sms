@@ -4,7 +4,7 @@
 <c:set var="tituloPagina" value="Números oficiales" />
 <c:set var="menuActivo" value="numeros" />
 
-<%@ include file="/WEB-INF/vistas/layout/header.jspf" %>
+<%@ include file="/WEB-INF/vistas/layout/admin-inicio.jspf" %>
 
 <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
     <div>
@@ -66,4 +66,4 @@
     </div>
 </div>
 
-<%@ include file="/WEB-INF/vistas/layout/footer.jspf" %>
+<%@ include file="/WEB-INF/vistas/layout/admin-fin.jspf" %>
