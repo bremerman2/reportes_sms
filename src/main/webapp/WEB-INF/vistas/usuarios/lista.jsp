@@ -4,7 +4,7 @@
 <c:set var="tituloPagina" value="Usuarios" />
 <c:set var="menuActivo" value="usuarios" />
 
-<%@ include file="/WEB-INF/vistas/layout/header.jspf" %>
+<%@ include file="/WEB-INF/vistas/layout/admin-inicio.jspf" %>
 
 <h1 class="h3 fw-bold mb-1">Usuarios</h1>
 <p class="text-body-secondary mb-4">Usuarios registrados en la aplicación.</p>
@@ -128,4 +128,4 @@
     </div>
 </div>
 
-<%@ include file="/WEB-INF/vistas/layout/footer.jspf" %>
+<%@ include file="/WEB-INF/vistas/layout/admin-fin.jspf" %>
