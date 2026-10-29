@@ -14,10 +14,18 @@ public class InicioServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         HttpSession session = request.getSession(false);
+        //usuario comun logueado
         if (session != null && session.getAttribute("usuarioLogueado") instanceof Usuario) {
             mostrarInicioUsuario(request, response);
             return;
         }
+
+        //Administrador
+        ReportesDAO reportesDAO = new ReportesDAO();
+        request.setAttribute("reportesHoy", reportesDAO.contarReportesHoy());
+        request.setAttribute("reportesPendientes", reportesDAO.contarReportesPendientes());
+        request.setAttribute("estadisticas", reportesDAO.consultarEstadisticas());
+
         request.getRequestDispatcher("/WEB-INF/vistas/inicio.jsp").forward(request, response);
     }
 

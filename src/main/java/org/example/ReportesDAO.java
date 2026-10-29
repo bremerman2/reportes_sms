@@ -174,4 +174,42 @@ public class ReportesDAO {
         }
         return lista;
     }
+
+    //cantidad de reportes creados hoy
+    public int contarReportesHoy() {
+        String query = "SELECT COUNT(*) FROM reporte WHERE DATE(fecha_hora) = CURDATE()";
+
+        try (Connection conexion = ConexionDB.obtenerConexion();
+             PreparedStatement sentencia = conexion.prepareStatement(query);
+             ResultSet rs = sentencia.executeQuery()) {
+
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al contar reportes de hoy: " + e.getMessage());
+        }
+        return 0;
+    }
+
+    //cantidad de reportes pendientes
+    public int contarReportesPendientes() {
+        String query = "SELECT COUNT(*) FROM reporte WHERE estado_reporte = ?";
+
+        try (Connection conexion = ConexionDB.obtenerConexion();
+             PreparedStatement sentencia = conexion.prepareStatement(query)) {
+
+            sentencia.setString(1, estado_reporte.PENDIENTE.name().toLowerCase());
+
+            try (ResultSet rs = sentencia.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al contar reportes pendientes: " + e.getMessage());
+        }
+        return 0;
+    }
+
 }
