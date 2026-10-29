@@ -799,3 +799,96 @@ a { color: inherit; }
     .as-tabla td.as-col-fecha { grid-column: 1; grid-row: 2; font-size: 12px; color: var(--as-texto-suave); }
     .as-tabla td.as-col-acciones { grid-column: 2; grid-row: 2; text-align: right; }
 }
+
+/* Diseño coherente para las vistas administrativas */
+.as-contenido .btn-primary {
+    background: var(--as-rojo);
+    border-color: var(--as-rojo);
+    border-radius: 0;
+    font-weight: 700;
+}
+
+.as-contenido .btn-primary:hover,
+.as-contenido .btn-primary:focus {
+    background: var(--as-rojo-oscuro);
+    border-color: var(--as-rojo-oscuro);
+}
+
+.as-contenido .btn-outline-primary {
+    color: var(--as-rojo-oscuro);
+    border-color: var(--as-rojo);
+    border-radius: 0;
+}
+
+.as-contenido .btn-outline-primary:hover {
+    background: var(--as-rojo);
+    border-color: var(--as-rojo);
+    color: #fff;
+}
+
+.as-contenido .btn,
+.as-contenido .form-control,
+.as-contenido .form-select {
+    border-radius: 0;
+}
+
+.as-contenido .card {
+    border: 1px solid var(--as-borde-suave) !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    background: #fff;
+}
+
+.as-contenido .card-header,
+.as-contenido .table-light th {
+    background: var(--as-fondo-menu) !important;
+    color: var(--as-texto);
+}
+
+.as-contenido .table {
+    --bs-table-striped-bg: #f7f4f3;
+    --bs-table-hover-bg: var(--as-rojo-claro);
+}
+
+.as-contenido .table thead th {
+    border-bottom: 1.5px solid var(--as-borde-suave);
+    white-space: nowrap;
+}
+
+.as-contenido .form-control:focus,
+.as-contenido .form-select:focus {
+    border-color: var(--as-rojo);
+    box-shadow: 0 0 0 .2rem rgba(232, 52, 28, .15);
+}
+
+.as-contenido .text-primary {
+    color: var(--as-rojo) !important;
+}
+
+.as-tabla-contenedor {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.as-tabla-contenedor .as-tabla {
+    min-width: 480px;
+}
+
+.as-tabla-contenedor .as-tabla tbody tr:hover {
+    background: var(--as-rojo-claro);
+}
+
+@media (max-width: 760px) {
+    .as-encabezado {
+        padding: 14px 16px;
+    }
+
+    .as-sesion {
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .as-contenido {
+        padding: 18px 14px 30px;
+    }
+}
