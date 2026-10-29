@@ -1,0 +1,26 @@
+</main>
+</div>
+</div>
+
+<script>
+    (function () {
+        const menu = document.getElementById('menu');
+
+        if (!menu) {
+            return;
+        }
+
+        const boton = menu.querySelector('.as-menu-boton');
+
+        if (!boton) {
+            return;
+        }
+
+        boton.addEventListener('click', function () {
+            const abierto = menu.classList.toggle('abierto');
+            boton.setAttribute('aria-expanded', abierto);
+        });
+    })();
+</script>
+</body>
+</html>
