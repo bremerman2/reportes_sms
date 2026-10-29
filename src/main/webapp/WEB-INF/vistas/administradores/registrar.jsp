@@ -4,7 +4,7 @@
 <c:set var="tituloPagina" value="Registrar administrador" />
 <c:set var="menuActivo" value="administradores" />
 
-<%@ include file="/WEB-INF/vistas/layout/header.jspf" %>
+<%@ include file="/WEB-INF/vistas/layout/admin-inicio.jspf" %>
 
 <div class="row justify-content-center">
     <div class="col-12 col-md-8 col-lg-6">
@@ -60,4 +60,4 @@
     </div>
 </div>
 
-<%@ include file="/WEB-INF/vistas/layout/footer.jspf" %>
+<%@ include file="/WEB-INF/vistas/layout/admin-fin.jspf" %>
