@@ -1,39 +1,97 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
+<c:set var="ctx" value="${pageContext.request.contextPath}" />
 
-<c:set var="tituloPagina" value="Ingresar" />
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Acceso de administrador · AlertaSMS</title>
 
-<%@ include file="/WEB-INF/vistas/layout/header.jspf" %>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;700;800&display=swap"
+          rel="stylesheet">
 
-<div class="row justify-content-center mt-5">
-    <div class="col-12 col-sm-10 col-md-6 col-lg-4">
+    <link rel="stylesheet" href="${ctx}/estilos/alertasms.css">
+</head>
+<body>
+<div class="as-app">
 
-        <h1 class="h3 fw-bold text-center mb-1">Reportes SMS</h1>
-        <p class="text-body-secondary text-center mb-4">Ingresá con tu cuenta de administrador</p>
+    <header class="as-encabezado">
+        <a class="as-marca" href="${ctx}/login">AlertaSMS
+            <span>Administración</span>
+        </a>
 
-        <div class="card border-0 shadow-sm">
-            <div class="card-body p-4">
-
-                <c:if test="${not empty error}">
-                    <div class="alert alert-danger"><c:out value="${error}" /></div>
-                </c:if>
-
-                <form action="${ctx}/login" method="post" class="m-0">
-                    <div class="mb-3">
-                        <label for="email" class="form-label fw-semibold">Email</label>
-                        <input type="email" class="form-control" id="email" name="email"
-                               value="<c:out value='${email}' />" required autofocus>
-                    </div>
-                    <div class="mb-4">
-                        <label for="password" class="form-label fw-semibold">Contraseña</label>
-                        <input type="password" class="form-control" id="password" name="password" required>
-                    </div>
-                    <button type="submit" class="btn btn-primary w-100">Ingresar</button>
-                </form>
-
-            </div>
+        <div class="as-sesion">
+            <a class="as-link-rojo" href="${ctx}/login-usuario">
+                Acceso de usuario
+            </a>
         </div>
-    </div>
-</div>
+    </header>
 
-<%@ include file="/WEB-INF/vistas/layout/footer.jspf" %>
+    <main class="as-login">
+        <div class="as-login-caja">
+
+            <h1>Acceso de administrador</h1>
+
+            <p class="as-descripcion">
+                Ingresá con tu cuenta de administrador para gestionar
+                los reportes, los números oficiales, los prefijos y los usuarios.
+            </p>
+
+            <c:if test="${not empty error}">
+                <div class="as-aviso as-aviso-error" role="alert">
+                    <c:out value="${error}" />
+                </div>
+            </c:if>
+
+            <form class="as-login-form" action="${ctx}/login" method="post">
+
+                <div class="as-campo">
+                    <label for="email">
+                        Email <span class="as-obligatorio">*</span>
+                    </label>
+
+                    <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        value="<c:out value='${email}' />"
+                        autocomplete="username"
+                        maxlength="254"
+                        required
+                        autofocus>
+                </div>
+
+                <div class="as-campo">
+                    <label for="password">
+                        Contraseña <span class="as-obligatorio">*</span>
+                    </label>
+
+                    <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        autocomplete="current-password"
+                        required>
+                </div>
+
+                <button class="as-boton as-boton-primario" type="submit">
+                    Ingresar
+                </button>
+
+            </form>
+
+            <p class="as-login-pie">
+                ¿Querés ingresar como usuario?
+                <a href="${ctx}/login-usuario">Iniciá sesión aquí</a>
+            </p>
+
+        </div>
+    </main>
+
+</div>
+</body>
+</html>
