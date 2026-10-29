@@ -4,7 +4,7 @@
 <c:set var="tituloPagina" value="Inicio" />
 <c:set var="menuActivo" value="inicio" />
 
-<%@ include file="/WEB-INF/vistas/layout/header.jspf" %>
+<%@ include file="/WEB-INF/vistas/layout/admin-inicio.jspf" %>
 
 <h1 class="h3 fw-bold mb-1">Sistema de gestión</h1>
 <p class="text-body-secondary mb-4">Panel de administración con datos actuales y accesos directos.</p>
@@ -114,4 +114,4 @@
     </div>
 </div>
 
-<%@ include file="/WEB-INF/vistas/layout/footer.jspf" %>
+<%@ include file="/WEB-INF/vistas/layout/admin-fin.jspf" %>
