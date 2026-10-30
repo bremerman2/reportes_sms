@@ -227,6 +227,53 @@ public class ComunidadDAO {
         return lista;
     }
 
+    public int contarMisReportes(int idUsuario, String estado) {
+        String sql = "SELECT COUNT(*) FROM reporte r WHERE r.id_usuario = ?"
+                + (estado.isEmpty() ? "" : " AND r.estado_reporte = ?");
+        try (Connection con = ConexionDB.obtenerConexion(); PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, idUsuario);
+            if (!estado.isEmpty()) ps.setString(2, estado);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al contar mis reportes: " + e.getMessage());
+        }
+        return 0;
+    }
+
+    public List<ReporteComunidad> listarMisReportes(int idUsuario, String estado, int desde, int cantidad) {
+        List<ReporteComunidad> lista = new ArrayList<>();
+        String sql = "SELECT r.id_reporte, r.fecha_hora, r.cuerpo_sms, r.estado_reporte, nr.numero_telefono, nr.cantidad_reportes, pp.prefijo" +
+                FROM_RECIENTES + " WHERE r.id_usuario = ?" +
+                (estado.isEmpty() ? "" : " AND r.estado_reporte = ?") +
+                " ORDER BY r.fecha_hora DESC, r.id_reporte DESC LIMIT ? OFFSET ?";
+        try (Connection con = ConexionDB.obtenerConexion(); PreparedStatement ps = con.prepareStatement(sql)) {
+            int i = 1;
+            ps.setInt(i++, idUsuario);
+            if (!estado.isEmpty()) ps.setString(i++, estado);
+            ps.setInt(i++, cantidad);
+            ps.setInt(i, desde);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    ReporteComunidad r = new ReporteComunidad();
+                    r.setIdReporte(rs.getInt("id_reporte"));
+                    Timestamp fecha = rs.getTimestamp("fecha_hora");
+                    r.setFechaHora(fecha == null ? null : fecha.toLocalDateTime());
+                    r.setCuerpoSms(rs.getString("cuerpo_sms"));
+                    r.setEstado(rs.getString("estado_reporte"));
+                    r.setNumeroTelefono(numeroConPrefijo(rs.getString("prefijo"), rs.getString("numero_telefono")));
+                    r.setCantidadReportesNumero(rs.getInt("cantidad_reportes"));
+                    r.setIdUsuario(idUsuario);
+                    lista.add(r);
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al listar mis reportes: " + e.getMessage());
+        }
+        return lista;
+    }
+
     // "+598" + "91204773" -> "+598 91204773". Si el número ya trae el "+", se deja como está.
     private String numeroConPrefijo(String prefijo, String numero) {
         if (numero == null) return "";

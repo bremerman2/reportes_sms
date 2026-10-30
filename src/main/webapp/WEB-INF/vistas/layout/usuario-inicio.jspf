@@ -2,7 +2,7 @@
   Parte de arriba del panel de usuario (AlertaSMS v2).
   Antes de incluirlo, cada página define:
     <c:set var="tituloPagina" value="..." />
-    <c:set var="menuActivo"  value="inicio | reportar | comunidad | perfil" />
+    <c:set var="menuActivo"  value="inicio | reportar | misReportes | comunidad | perfil" />
   Se cierra con layout/usuario-fin.jspf
 --%>
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
@@ -65,6 +65,7 @@
             <ul id="menu-lista">
                 <li><a href="${ctx}/inicio" ${menuActivo == 'inicio' ? 'aria-current="page"' : ''}>Inicio</a></li>
                 <li><a href="${ctx}/reportar" ${menuActivo == 'reportar' ? 'aria-current="page"' : ''}>Reportar SMS</a></li>
+                <li><a href="${ctx}/mis-reportes" ${menuActivo == 'misReportes' ? 'aria-current="page"' : ''}>Mis reportes</a></li>
                 <li><a href="${ctx}/comunidad" ${menuActivo == 'comunidad' ? 'aria-current="page"' : ''}>Comunidad</a></li>
                 <li><a href="${ctx}/consulta-prefijos" ${menuActivo == 'prefijosPublicos' ? 'aria-current="page"' : ''}>Prefijos de países</a></li>
                 <li><a href="${ctx}/consulta-numeros-oficiales" ${menuActivo == 'numerosPublicos' ? 'aria-current="page"' : ''}>Números oficiales</a></li>

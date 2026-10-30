@@ -33,7 +33,9 @@ public class FiltroSesion extends HttpFilter {
                 || ruta.equals("/logout-usuario") || ruta.equals("/reportar") || ruta.equals("/comentar")
                 || ruta.equals("/comunidad") || ruta.equals("/suscripcion")
                 || ruta.equals("/notificaciones") || ruta.startsWith("/notificacion")
-                || ruta.equals("/consulta-prefijos") || ruta.equals("/consulta-numeros-oficiales");
+                || ruta.equals("/consulta-prefijos") || ruta.equals("/consulta-numeros-oficiales")
+                || ruta.equals("/consulta-prefijos") || ruta.equals("/consulta-numeros-oficiales")
+                || ruta.equals("/mis-reportes");
 
         if (esPublica || (admin && !usuario && (rutaAdmin || ruta.equals("/logout") || ruta.equals("/")))
                 || (usuario && !admin && rutaUsuario)) {

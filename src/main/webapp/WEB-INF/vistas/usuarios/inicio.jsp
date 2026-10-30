@@ -12,7 +12,10 @@
                     <h1>Inicio</h1>
                     <p class="as-descripcion">Reportes recientes de toda la comunidad. No se muestra quién reportó cada uno.</p>
                 </div>
-                <a class="as-boton as-boton-primario" href="${ctx}/reportar">+ Reportar SMS</a>
+                                <div class="as-titulo-acciones">
+                                    <a class="as-boton as-boton-primario" href="${ctx}/reportar">+ Reportar SMS</a>
+                                    <a class="as-boton as-boton-gris" href="${ctx}/mis-reportes">Mis reportes</a>
+                                </div>
             </div>
 
             <%-- 4 · Búsqueda y filtros --%>

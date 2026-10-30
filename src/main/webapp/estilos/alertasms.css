@@ -207,6 +207,21 @@ a { color: inherit; }
 
 .as-boton-secundario:hover { background: #fff; }
 
+/* Botón gris, mismo color y borde que la caja de filtros */
+.as-boton-gris {
+    background: var(--as-fondo-filtros);
+    border-color: var(--as-borde-suave);
+    color: var(--as-texto);
+    padding: 10px 18px;
+}
+
+.as-boton-gris:hover { background: #dcdcdc; }
+
+.as-titulo-acciones {
+    display: flex;
+    gap: 8px;
+}
+
 .as-boton[aria-disabled="true"] {
     color: #aaa;
     border-color: #c8c8c8;
@@ -773,6 +788,8 @@ a { color: inherit; }
     .as-encabezado { padding: 14px 16px; }
     .as-titulo { flex-direction: column; }
     .as-titulo .as-boton-primario { width: 100%; }
+    .as-titulo-acciones { flex-direction: column; width: 100%; }
+    .as-titulo-acciones .as-boton { width: 100%; }
     .as-filtros-acciones { width: 100%; }
     .as-campo select { width: 100%; }
     .as-campo { flex: 1 1 100%; }
