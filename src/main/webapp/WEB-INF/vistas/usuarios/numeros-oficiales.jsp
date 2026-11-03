@@ -26,7 +26,7 @@
         </c:when>
 
         <c:otherwise>
-            <table class="as-tabla">
+            <table class="as-tabla as-tabla-cards">
                 <thead>
                     <tr>
                         <th scope="col">Número telefónico</th>
@@ -39,15 +39,15 @@
                 <tbody>
                     <c:forEach var="n" items="${listaNumerosOficialesPublicos}">
                         <tr>
-                            <td>
+                            <td class="as-celda-titulo">
                                 <strong>
                                     <c:out value="${n.pais_prefijo.prefijo}" />
                                     <c:out value="${n.numero_telefono}" />
                                 </strong>
                             </td>
-                            <td><c:out value="${n.nombre_entidad}" /></td>
-                            <td><c:out value="${n.pais_prefijo.nombre_pais}" /></td>
-                            <td><c:out value="${n.fecha_carga_texto}" /></td>
+                            <td data-label="Entidad"><c:out value="${n.nombre_entidad}" /></td>
+                            <td data-label="País"><c:out value="${n.pais_prefijo.nombre_pais}" /></td>
+                            <td data-label="Fecha de registro"><c:out value="${n.fecha_carga_texto}" /></td>
                         </tr>
                     </c:forEach>
                 </tbody>

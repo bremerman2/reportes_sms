@@ -800,21 +800,85 @@ a { color: inherit; }
     .as-acciones .as-boton { flex: 1; }
     .as-tarjeta { padding: 14px; }
 
-    /* La tabla pasa a tarjetas apiladas */
+    /* La tabla de reportes (Inicio, Mis reportes) pasa a tarjetas apiladas:
+       número y estado arriba, mensaje (si hay) en el medio, fecha y "Ver" abajo */
+    .as-tabla { border-top: 0; }
     .as-tabla thead { display: none; }
     .as-tabla, .as-tabla tbody, .as-tabla tr, .as-tabla td { display: block; width: 100%; }
     .as-tabla tr {
         display: grid;
         grid-template-columns: 1fr auto;
-        gap: 4px 12px;
-        padding: 12px 0;
-        border-bottom: 1px solid var(--as-linea);
+        gap: 6px 12px;
+        margin-bottom: 10px;
+        padding: 12px 14px;
+        border: 1px solid var(--as-borde-suave);
+        background: #fff;
     }
     .as-tabla td { padding: 0; border: 0; }
-    .as-tabla td.as-col-numero { grid-column: 1; grid-row: 1; font-weight: 700; font-size: 16px; }
-    .as-tabla td.as-col-estado { grid-column: 2; grid-row: 1; text-align: right; }
-    .as-tabla td.as-col-fecha { grid-column: 1; grid-row: 2; font-size: 12px; color: var(--as-texto-suave); }
-    .as-tabla td.as-col-acciones { grid-column: 2; grid-row: 2; text-align: right; }
+    .as-tabla td.as-col-numero { grid-column: 1; order: 1; font-weight: 700; font-size: 16px; }
+    .as-tabla td.as-col-estado { grid-column: 2; order: 2; text-align: right; }
+    .as-tabla td.as-col-mensaje { grid-column: 1 / -1; order: 3; font-size: 13px; color: var(--as-texto-suave); }
+    .as-tabla td.as-col-fecha { grid-column: 1; order: 4; font-size: 12px; color: var(--as-texto-suave); }
+    .as-tabla td.as-col-acciones { grid-column: 2; order: 5; text-align: right; }
+
+    /* Resto de los listados (usuario y administración): cada fila es una tarjeta
+       con "Etiqueta ...... valor" por renglón. La etiqueta sale del data-label de cada celda. */
+    .as-tabla-cards thead { display: none; }
+    .as-tabla-cards, .as-tabla-cards tbody, .as-tabla-cards tr, .as-tabla-cards td { display: block; width: 100%; }
+    .as-contenido .as-tabla-cards { min-width: 0 !important; margin: 0; }
+    .as-contenido .as-tabla-cards tr {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 10px;
+        padding: 10px 14px;
+        border: 1px solid var(--as-borde-suave);
+        background: #fff;
+    }
+    .as-contenido .card .as-tabla-cards tr { margin: 0; border: 0; border-bottom: 1px solid var(--as-linea); }
+    .as-contenido .as-tabla-cards > :not(caption) > * > * {
+        max-width: none !important;
+        padding: 5px 0 !important;
+        border: 0;
+        background: transparent;
+        box-shadow: none !important;
+        text-align: right !important;
+        white-space: normal !important;
+        overflow-wrap: anywhere;
+    }
+    .as-tabla-cards td[data-label]::before {
+        content: attr(data-label);
+        float: left;
+        margin-right: 12px;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--as-texto-suave);
+        text-align: left;
+    }
+    /* La celda principal (número, país, nombre) va arriba aunque no sea la primera columna */
+    .as-tabla-cards td.as-celda-titulo { order: -1; font-size: 16px; font-weight: 700; text-align: left !important; }
+    .as-tabla-cards td.as-celda-titulo::before { display: none; }
+    /* Textos largos (SMS): etiqueta arriba y texto a lo ancho */
+    .as-tabla-cards td.as-celda-bloque { text-align: left !important; }
+    .as-tabla-cards td.as-celda-bloque::before { float: none; display: block; margin-bottom: 2px; }
+    .as-tabla-cards td.as-celda-bloque .text-truncate { white-space: normal; }
+    /* Botones de acción: a lo ancho, al pie de la tarjeta */
+    .as-contenido .as-tabla-cards td.as-celda-acciones {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 6px;
+        padding-top: 10px !important;
+        border-top: 1px solid var(--as-linea);
+    }
+    /* Si la fila no tiene acciones (p. ej. reporte ya marcado falso positivo) no se deja la línea vacía */
+    .as-contenido .as-tabla-cards td.as-celda-acciones:not(:has(*)) { display: none; }
+    .as-tabla-cards td.as-celda-acciones > a,
+    .as-tabla-cards td.as-celda-acciones > form { flex: 1 1 0; margin: 0; }
+    .as-tabla-cards td.as-celda-acciones .btn { width: 100%; }
+    /* Fila de "no hay datos" */
+    .as-tabla-cards td[colspan] { text-align: center !important; }
 }
 
 /* Diseño coherente para las vistas administrativas */
@@ -880,6 +944,28 @@ a { color: inherit; }
 
 .as-contenido .text-primary {
     color: var(--as-rojo) !important;
+}
+
+/* Listado de reportes (admin): el SMS ocupa el espacio libre y muestra hasta 2 renglones;
+   el texto completo está en el detalle del reporte */
+.as-sms-resumen {
+    color: inherit;
+    text-decoration: none;
+    overflow-wrap: anywhere;
+}
+
+.as-sms-resumen:hover { text-decoration: underline; }
+
+@media (min-width: 641px) {
+    .as-contenido td.as-celda-sms { width: 45%; min-width: 280px; }
+
+    .as-sms-resumen {
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+        line-clamp: 2;
+        overflow: hidden;
+    }
 }
 
 .as-tabla-contenedor {

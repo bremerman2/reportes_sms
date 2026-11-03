@@ -67,7 +67,7 @@
                             <tr>
                                 <td class="as-col-fecha"><c:out value="${r.fechaTexto}" /></td>
                                 <td class="as-col-numero"><c:out value="${r.numeroTelefono}" /></td>
-                                <td>
+                                <td class="as-col-mensaje">
                                     <c:choose>
                                         <c:when test="${fn:length(r.cuerpoSms) > 60}"><c:out value="${fn:substring(r.cuerpoSms, 0, 60)}" />…</c:when>
                                         <c:otherwise><c:out value="${r.cuerpoSms}" /></c:otherwise>
@@ -81,7 +81,7 @@
                                     </c:choose>
                                 </td>
                                 <td class="as-col-acciones">
-                                    <a class="as-ver" href="${ctx}/comunidad#reporte-${r.idReporte}">Ver</a>
+                                    <a class="as-ver" href="${ctx}/ver-reporte?id=${r.idReporte}">Ver</a>
                                 </td>
                             </tr>
                         </c:forEach>

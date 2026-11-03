@@ -31,7 +31,7 @@ public class FiltroSesion extends HttpFilter {
 
         boolean rutaUsuario = ruta.equals("/") || ruta.equals("/inicio") || ruta.equals("/perfil")
                 || ruta.equals("/logout-usuario") || ruta.equals("/reportar") || ruta.equals("/comentar")
-                || ruta.equals("/comunidad") || ruta.equals("/suscripcion")
+                || ruta.equals("/comunidad") || ruta.equals("/ver-reporte") || ruta.equals("/suscripcion")
                 || ruta.equals("/notificaciones") || ruta.startsWith("/notificacion")
                 || ruta.equals("/consulta-prefijos") || ruta.equals("/consulta-numeros-oficiales")
                 || ruta.equals("/consulta-prefijos") || ruta.equals("/consulta-numeros-oficiales")

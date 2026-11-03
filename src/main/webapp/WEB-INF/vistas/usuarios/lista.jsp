@@ -72,7 +72,7 @@
 <div class="card border-0 shadow-sm">
     <div class="card-body p-0">
         <div class="table-responsive">
-            <table class="table table-striped table-hover align-middle mb-0">
+            <table class="table table-striped table-hover align-middle mb-0 as-tabla-cards">
                 <thead class="table-light">
                 <tr>
                     <th scope="col" class="ps-4">ID</th>
@@ -86,17 +86,17 @@
                 <tbody>
                 <c:forEach var="usuario" items="${listaUsuarios}">
                     <tr>
-                        <td class="ps-4 text-body-secondary"><c:out value="${usuario.id_usuario}" /></td>
-                        <td class="fw-medium"><c:out value="${usuario.nombre} ${usuario.apellido}" /></td>
-                        <td><c:out value="${usuario.email}" /></td>
-                        <td class="text-nowrap"><c:out value="${usuario.telefono}" /></td>
-                        <td>
+                        <td class="ps-4 text-body-secondary" data-label="ID"><c:out value="${usuario.id_usuario}" /></td>
+                        <td class="fw-medium as-celda-titulo"><c:out value="${usuario.nombre} ${usuario.apellido}" /></td>
+                        <td data-label="Email"><c:out value="${usuario.email}" /></td>
+                        <td class="text-nowrap" data-label="Teléfono"><c:out value="${usuario.telefono}" /></td>
+                        <td data-label="Estado">
                             <c:choose>
                                 <c:when test="${usuario.bloqueado}"><span class="badge text-bg-danger">Bloqueado</span></c:when>
                                 <c:otherwise><span class="badge text-bg-success">Activo</span></c:otherwise>
                             </c:choose>
                         </td>
-                        <td class="text-end pe-4 text-nowrap">
+                        <td class="text-end pe-4 text-nowrap as-celda-acciones">
                             <c:if test="${not usuario.bloqueado}">
                                 <form action="${ctx}/usuarios" method="post" class="d-inline"
                                       onsubmit="return confirm('¿Desea bloquear este usuario?');">

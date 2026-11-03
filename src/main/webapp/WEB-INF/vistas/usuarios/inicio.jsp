@@ -84,7 +84,7 @@
                                     </c:choose>
                                 </td>
                                 <td class="as-col-acciones">
-                                    <a class="as-ver" href="${ctx}/comunidad#reporte-${r.idReporte}">Ver</a>
+                                    <a class="as-ver" href="${ctx}/ver-reporte?id=${r.idReporte}">Ver</a>
                                 </td>
                             </tr>
                         </c:forEach>

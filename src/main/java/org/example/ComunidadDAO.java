@@ -7,6 +7,14 @@ import java.util.List;
 
 public class ComunidadDAO {
 
+    // Reporte completo para el muro: SMS, captura, autor, número y cantidad de reportes del número
+    private static final String SELECT_MURO =
+            "SELECT r.id_reporte, r.fecha_hora, r.cuerpo_sms, r.captura_pantalla, " +
+                    "r.estado_reporte, r.id_usuario, u.nombre, u.apellido, nr.numero_telefono, nr.cantidad_reportes, pp.prefijo " +
+                    "FROM reporte r JOIN usuario u ON u.id_usuario = r.id_usuario " +
+                    "JOIN numero_reportado nr ON nr.id_num_reportado = r.id_num_reportado " +
+                    "LEFT JOIN pais_prefijo pp ON pp.id_prefijo = nr.id_prefijo";
+
     // Sin búsqueda: trae todos los reportes
     public List<ReporteComunidad> listarReportesComunidad() {
         return listarReportesComunidad("");
@@ -19,12 +27,7 @@ public class ComunidadDAO {
         String digitos = soloDigitos(texto);
         if (digitos.length() < 3) digitos = "";   // con menos de 3 dígitos coincidiría con casi todos los números
 
-        StringBuilder sql = new StringBuilder(
-                "SELECT r.id_reporte, r.fecha_hora, r.cuerpo_sms, r.captura_pantalla, " +
-                        "r.estado_reporte, r.id_usuario, u.nombre, u.apellido, nr.numero_telefono, nr.cantidad_reportes, pp.prefijo " +
-                        "FROM reporte r JOIN usuario u ON u.id_usuario = r.id_usuario " +
-                        "JOIN numero_reportado nr ON nr.id_num_reportado = r.id_num_reportado " +
-                        "LEFT JOIN pais_prefijo pp ON pp.id_prefijo = nr.id_prefijo");
+        StringBuilder sql = new StringBuilder(SELECT_MURO);
         if (!texto.isEmpty()) {
             sql.append(" WHERE LOWER(r.cuerpo_sms) LIKE LOWER(?)");
             if (!digitos.isEmpty()) {
@@ -41,25 +44,43 @@ public class ComunidadDAO {
             }
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
-                    ReporteComunidad r = new ReporteComunidad();
-                    r.setIdReporte(rs.getInt("id_reporte"));
-                    Timestamp fecha = rs.getTimestamp("fecha_hora");
-                    r.setFechaHora(fecha == null ? null : fecha.toLocalDateTime());
-                    r.setCuerpoSms(rs.getString("cuerpo_sms"));
-                    r.setCapturaPantalla(rs.getString("captura_pantalla"));
-                    r.setEstado(rs.getString("estado_reporte"));
-                    r.setIdUsuario(rs.getInt("id_usuario"));
-                    r.setNombreUsuario(rs.getString("nombre") + " " + rs.getString("apellido"));
-                    r.setNumeroTelefono(numeroConPrefijo(rs.getString("prefijo"), rs.getString("numero_telefono")));
-                    r.setCantidadReportesNumero(rs.getInt("cantidad_reportes"));
-                    r.setComentarios(listarComentarios(rs.getInt("id_reporte")));
-                    lista.add(r);
+                    lista.add(armarReporteMuro(rs));
                 }
             }
         } catch (SQLException e) {
             System.err.println("Error al listar el muro de reportes: " + e.getMessage());
         }
         return lista;
+    }
+
+    // Un solo reporte completo (con comentarios), para la página del "Ver". Devuelve null si no existe.
+    public ReporteComunidad obtenerReporteComunidad(int idReporte) {
+        String sql = SELECT_MURO + " WHERE r.id_reporte = ?";
+        try (Connection con = ConexionDB.obtenerConexion(); PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, idReporte);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return armarReporteMuro(rs);
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al obtener el reporte " + idReporte + ": " + e.getMessage());
+        }
+        return null;
+    }
+
+    private ReporteComunidad armarReporteMuro(ResultSet rs) throws SQLException {
+        ReporteComunidad r = new ReporteComunidad();
+        r.setIdReporte(rs.getInt("id_reporte"));
+        Timestamp fecha = rs.getTimestamp("fecha_hora");
+        r.setFechaHora(fecha == null ? null : fecha.toLocalDateTime());
+        r.setCuerpoSms(rs.getString("cuerpo_sms"));
+        r.setCapturaPantalla(rs.getString("captura_pantalla"));
+        r.setEstado(rs.getString("estado_reporte"));
+        r.setIdUsuario(rs.getInt("id_usuario"));
+        r.setNombreUsuario(rs.getString("nombre") + " " + rs.getString("apellido"));
+        r.setNumeroTelefono(numeroConPrefijo(rs.getString("prefijo"), rs.getString("numero_telefono")));
+        r.setCantidadReportesNumero(rs.getInt("cantidad_reportes"));
+        r.setComentarios(listarComentarios(rs.getInt("id_reporte")));
+        return r;
     }
 
     private List<ComentarioReporte> listarComentarios(int idReporte) throws SQLException {

@@ -14,12 +14,14 @@ import java.time.LocalDateTime;
 //   GET  /reportes                       -> listado + estadísticas
 //   GET  /reportes?estado=PENDIENTE      -> listado filtrado por estado
 //   GET  /reportes?accion=nuevo          -> formulario para registrar
+//   GET  /reportes?accion=ver&id=N       -> detalle de un reporte
 //   POST /reportes  accion=crear | confirmar | falso-positivo
 @WebServlet("/reportes")
 public class ReporteServlet extends HttpServlet {
 
     private static final String LISTA = "/WEB-INF/vistas/reportes/lista.jsp";
     private static final String FORMULARIO = "/WEB-INF/vistas/reportes/formulario.jsp";
+    private static final String DETALLE = "/WEB-INF/vistas/reportes/detalle.jsp";
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -28,6 +30,10 @@ public class ReporteServlet extends HttpServlet {
 
         if (accion.equals("nuevo")) {
             mostrarFormulario(request, response);
+            return;
+        }
+        if (accion.equals("ver")) {
+            mostrarDetalle(request, response);
             return;
         }
 
@@ -49,6 +55,20 @@ public class ReporteServlet extends HttpServlet {
         request.setAttribute("estados", estado_reporte.values());
         request.setAttribute("estadisticas", dao.consultarEstadisticas());
         request.getRequestDispatcher(LISTA).forward(request, response);
+    }
+
+    // un reporte completo (SMS entero, captura, comentarios) con las acciones de confirmar / falso positivo
+    private void mostrarDetalle(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        Integer id = UtilWeb.entero(request, "id");
+        ReporteComunidad reporte = id == null ? null : new ComunidadDAO().obtenerReporteComunidad(id);
+        if (reporte == null) {
+            UtilWeb.mensajeError(request, "El reporte no existe");
+            volverAlListado(request, response);
+            return;
+        }
+        request.setAttribute("reporte", reporte);
+        request.setAttribute("estadoFiltro", UtilWeb.texto(request, "estadoFiltro"));
+        request.getRequestDispatcher(DETALLE).forward(request, response);
     }
 
     // el formulario necesita la lista de usuarios para el desplegable
@@ -132,8 +152,15 @@ public class ReporteServlet extends HttpServlet {
     }
 
     //vuelve al listado manteniendo el filtro que estaba aplicado
+    //(o al detalle, si la acción se hizo desde la página del reporte)
     private void volverAlListado(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String estado = UtilWeb.texto(request, "estadoFiltro");
+        Integer id = UtilWeb.entero(request, "id");
+        if (id != null && "detalle".equals(UtilWeb.texto(request, "origen"))) {
+            response.sendRedirect(request.getContextPath() + "/reportes?accion=ver&id=" + id
+                    + (estado.isEmpty() ? "" : "&estadoFiltro=" + estado));
+            return;
+        }
         String url = request.getContextPath() + "/reportes" + (estado.isEmpty() ? "" : "?estado=" + estado);
         response.sendRedirect(url);
     }
@@ -148,7 +175,7 @@ public class ReporteServlet extends HttpServlet {
             notif.setId_usuario(idUsuario);
             notif.setMensaje(mensaje);
             notif.setLeido(false);
-            notif.setEnlace(request.getContextPath() + "/comunidad#reporte-" + idReporte);
+            notif.setEnlace(request.getContextPath() + "/ver-reporte?id=" + idReporte);
 
             notificacionDAO.registrarNotificacion(notif);
         }

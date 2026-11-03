@@ -31,7 +31,7 @@
 <div class="card border-0 shadow-sm mb-4">
     <div class="card-body p-0">
         <div class="table-responsive">
-            <table class="table table-striped table-hover align-middle mb-0">
+            <table class="table table-striped table-hover align-middle mb-0 as-tabla-cards">
                 <thead class="table-light">
                 <tr>
                     <th scope="col" class="ps-4">ID</th>
@@ -46,25 +46,29 @@
                 </thead>
                 <tbody>
                 <c:forEach var="r" items="${listaReportes}">
+                    <c:url var="urlDetalle" value="/reportes">
+                        <c:param name="accion" value="ver" />
+                        <c:param name="id" value="${r.id_reporte}" />
+                        <c:if test="${not empty estadoFiltro}"><c:param name="estadoFiltro" value="${estadoFiltro}" /></c:if>
+                    </c:url>
                     <tr>
-                        <td class="ps-4 text-body-secondary"><c:out value="${r.id_reporte}" /></td>
-                        <td class="text-nowrap"><c:out value="${r.fecha_hora_texto}" /></td>
-                        <td>
+                        <td class="ps-4" data-label="ID"><a class="fw-semibold" href="${urlDetalle}" title="Ver reporte completo">#<c:out value="${r.id_reporte}" /></a></td>
+                        <td class="text-nowrap" data-label="Fecha"><c:out value="${r.fecha_hora_texto}" /></td>
+                        <td data-label="Estado">
                             <c:choose>
                                 <c:when test="${r.estado_reporte == 'CONFIRMADO'}"><span class="badge text-bg-danger">Confirmado</span></c:when>
                                 <c:when test="${r.estado_reporte == 'PENDIENTE'}"><span class="badge text-bg-warning">Pendiente</span></c:when>
                                 <c:otherwise><span class="badge text-bg-secondary">Falso positivo</span></c:otherwise>
                             </c:choose>
                         </td>
-                        <td>${r.es_manual ? 'Sí' : 'No'}</td>
-                        <td><c:out value="${r.usuario.id_usuario}" /></td>
-                        <td><c:out value="${r.numero_reportado.id_numero_reportado}" /></td>
-                        <td style="max-width: 320px;">
-                            <span class="d-inline-block text-truncate" style="max-width: 100%;" title="<c:out value='${r.cuerpo_sms}' />">
-                                <c:out value="${r.cuerpo_sms}" />
-                            </span>
+                        <td data-label="Manual">${r.es_manual ? 'Sí' : 'No'}</td>
+                        <td data-label="Usuario"><c:out value="${r.usuario.id_usuario}" /></td>
+                        <td data-label="Nº reportado"><c:out value="${r.numero_reportado.id_numero_reportado}" /></td>
+                        <td class="as-celda-bloque as-celda-sms" data-label="SMS">
+                            <a class="as-sms-resumen" href="${urlDetalle}" title="<c:out value='${r.cuerpo_sms}' />"><c:out value="${r.cuerpo_sms}" /></a>
                         </td>
-                        <td class="text-end pe-4 text-nowrap">
+                        <td class="text-end pe-4 text-nowrap as-celda-acciones">
+                            <a href="${urlDetalle}" class="btn btn-outline-primary btn-sm">Ver</a>
                             <c:if test="${r.estado_reporte == 'PENDIENTE'}">
                                 <form action="${ctx}/reportes" method="post" class="d-inline">
                                     <input type="hidden" name="accion" value="confirmar">
@@ -105,7 +109,7 @@
     </div>
     <div class="card-body p-0">
         <div class="table-responsive">
-            <table class="table align-middle mb-0">
+            <table class="table align-middle mb-0 as-tabla-cards">
                 <thead class="table-light">
                 <tr>
                     <th scope="col" class="ps-4">Número</th>
@@ -115,8 +119,8 @@
                 <tbody>
                 <c:forEach var="e" items="${estadisticas}">
                     <tr>
-                        <td class="ps-4 fw-medium"><c:out value="${e.numero_telefono}" /></td>
-                        <td class="text-end pe-4"><c:out value="${e.cantidad_reportes}" /></td>
+                        <td class="ps-4 fw-medium as-celda-titulo"><c:out value="${e.numero_telefono}" /></td>
+                        <td class="text-end pe-4" data-label="Cantidad de reportes"><c:out value="${e.cantidad_reportes}" /></td>
                     </tr>
                 </c:forEach>
                 <c:if test="${empty estadisticas}">

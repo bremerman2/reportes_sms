@@ -29,13 +29,18 @@ public class ComentarioServlet extends HttpServlet {
                     notif.setId_usuario(idSuscriptor);
                     notif.setMensaje("Alguien comentó en un reporte de tus seguidos.");
                     notif.setLeido(false);
-                    notif.setEnlace(request.getContextPath() + "/comunidad#reporte-" + idReporte);
+                    notif.setEnlace(request.getContextPath() + "/ver-reporte?id=" + idReporte);
                     notifDAO.registrarNotificacion(notif);
                 }
             }
         } else {
             UtilWeb.mensajeError(request, "No se pudo publicar el comentario.");
         }
-        response.sendRedirect(request.getContextPath() + "/comunidad#reporte-" + (idReporte == null ? "comunidad" : idReporte));
+        // Si se comentó desde la página de un solo reporte, se vuelve a esa página; si no, al muro
+        if (idReporte != null && "reporte".equals(UtilWeb.texto(request, "origen"))) {
+            response.sendRedirect(request.getContextPath() + "/ver-reporte?id=" + idReporte);
+        } else {
+            response.sendRedirect(request.getContextPath() + "/comunidad#reporte-" + (idReporte == null ? "comunidad" : idReporte));
+        }
     }
 }

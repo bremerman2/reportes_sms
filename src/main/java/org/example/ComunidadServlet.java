@@ -11,7 +11,7 @@ import java.util.List;
 
 // Muro de la comunidad (reportes completos con comentarios).
 // Antes se veía en /inicio; ahora /inicio muestra el listado de reportes recientes
-// y el "Ver" de cada fila trae al usuario acá, directo al reporte (#reporte-ID).
+// y el "Ver" de cada fila lleva a /ver-reporte, que muestra solo ese reporte.
 @WebServlet("/comunidad")
 public class ComunidadServlet extends HttpServlet {
     @Override

@@ -46,7 +46,7 @@
         </c:if>
         <c:if test="${not empty estadisticas}">
             <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
+                <table class="table table-hover align-middle mb-0 as-tabla-cards">
                     <thead class="table-light">
                     <tr>
                         <th>Número de teléfono</th>
@@ -56,8 +56,8 @@
                     <tbody>
                     <c:forEach var="stat" items="${estadisticas}">
                         <tr>
-                            <td class="fw-bold"><c:out value="${stat.numero_telefono}" /></td>
-                            <td class="text-end">
+                            <td class="fw-bold as-celda-titulo"><c:out value="${stat.numero_telefono}" /></td>
+                            <td class="text-end" data-label="Total reportes">
                                     <span class="badge bg-secondary rounded-pill px-3 py-2">
                                         <c:out value="${stat.cantidad_reportes}" />
                                     </span>
@@ -68,49 +68,6 @@
                 </table>
             </div>
         </c:if>
-    </div>
-</div>
-<h2 class="h5 fw-bold mb-3">Secciones de administración</h2>
-<div class="row g-3">
-    <div class="col-12 col-md-6 col-lg-4">
-        <a href="${ctx}/reportes" class="card h-100 border-0 shadow-sm text-decoration-none">
-            <div class="card-body">
-                <h2 class="h5 fw-bold">Reportes</h2>
-                <p class="text-body-secondary mb-0">Registrar, confirmar o marcar falsos positivos, filtrar por estado y ver estadísticas.</p>
-            </div>
-        </a>
-    </div>
-    <div class="col-12 col-md-6 col-lg-4">
-        <a href="${ctx}/numeros-oficiales" class="card h-100 border-0 shadow-sm text-decoration-none">
-            <div class="card-body">
-                <h2 class="h5 fw-bold">Números oficiales</h2>
-                <p class="text-body-secondary mb-0">Alta, edición, baja y listado de números de entidades oficiales.</p>
-            </div>
-        </a>
-    </div>
-    <div class="col-12 col-md-6 col-lg-4">
-        <a href="${ctx}/prefijos" class="card h-100 border-0 shadow-sm text-decoration-none">
-            <div class="card-body">
-                <h2 class="h5 fw-bold">Prefijos</h2>
-                <p class="text-body-secondary mb-0">Prefijos telefónicos por país.</p>
-            </div>
-        </a>
-    </div>
-    <div class="col-12 col-md-6 col-lg-4">
-        <a href="${ctx}/usuarios" class="card h-100 border-0 shadow-sm text-decoration-none">
-            <div class="card-body">
-                <h2 class="h5 fw-bold">Usuarios</h2>
-                <p class="text-body-secondary mb-0">Buscar, bloquear o eliminar usuarios y ver estadísticas.</p>
-            </div>
-        </a>
-    </div>
-    <div class="col-12 col-md-6 col-lg-4">
-        <a href="${ctx}/administradores" class="card h-100 border-0 shadow-sm text-decoration-none">
-            <div class="card-body">
-                <h2 class="h5 fw-bold">Administradores</h2>
-                <p class="text-body-secondary mb-0">Registrar un nuevo administrador.</p>
-            </div>
-        </a>
     </div>
 </div>
 

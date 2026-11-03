@@ -17,7 +17,7 @@
 <div class="card border-0 shadow-sm">
     <div class="card-body p-0">
         <div class="table-responsive">
-            <table class="table table-striped table-hover align-middle mb-0">
+            <table class="table table-striped table-hover align-middle mb-0 as-tabla-cards">
                 <thead class="table-light">
                 <tr>
                     <th scope="col" class="ps-4">ID</th>
@@ -32,15 +32,15 @@
                 <tbody>
                 <c:forEach var="n" items="${listaNumeros}">
                     <tr>
-                        <td class="ps-4 text-body-secondary"><c:out value="${n.id_numero_oficial}" /></td>
-                        <td class="fw-medium text-nowrap">
+                        <td class="ps-4 text-body-secondary" data-label="ID"><c:out value="${n.id_numero_oficial}" /></td>
+                        <td class="fw-medium text-nowrap as-celda-titulo">
                             <c:out value="${n.pais_prefijo.prefijo}" /> <c:out value="${n.numero_telefono}" />
                         </td>
-                        <td><c:out value="${n.nombre_entidad}" /></td>
-                        <td><c:out value="${n.pais_prefijo.nombre_pais}" /></td>
-                        <td class="text-nowrap"><c:out value="${n.fecha_carga_texto}" /></td>
-                        <td><c:out value="${n.administrador.nombre}" /></td>
-                        <td class="text-end pe-4 text-nowrap">
+                        <td data-label="Entidad"><c:out value="${n.nombre_entidad}" /></td>
+                        <td data-label="País"><c:out value="${n.pais_prefijo.nombre_pais}" /></td>
+                        <td class="text-nowrap" data-label="Fecha de carga"><c:out value="${n.fecha_carga_texto}" /></td>
+                        <td data-label="Cargado por"><c:out value="${n.administrador.nombre}" /></td>
+                        <td class="text-end pe-4 text-nowrap as-celda-acciones">
                             <a href="${ctx}/numeros-oficiales?accion=editar&id=${n.id_numero_oficial}" class="btn btn-outline-primary btn-sm">Editar</a>
                             <form action="${ctx}/numeros-oficiales" method="post" class="d-inline"
                                   onsubmit="return confirm('¿Eliminar este número oficial?');">

@@ -25,7 +25,7 @@
         </c:when>
 
         <c:otherwise>
-            <table class="as-tabla">
+            <table class="as-tabla as-tabla-cards">
                 <thead>
                     <tr>
                         <th scope="col">País</th>
@@ -36,12 +36,12 @@
                 <tbody>
                     <c:forEach var="p" items="${listaPrefijosPublicos}">
                         <tr>
-                            <td>
+                            <td class="as-celda-titulo">
                                 <strong>
                                     <c:out value="${p.nombre_pais}" />
                                 </strong>
                             </td>
-                            <td>
+                            <td data-label="Prefijo">
                                 <c:out value="${p.prefijo}" />
                             </td>
                         </tr>
