@@ -29,7 +29,7 @@
 
 <c:if test="${not empty busqueda}">
     <div class="as-resultados-cabecera">
-        <strong>${reportesComunidad.size()} ${reportesComunidad.size() == 1 ? 'resultado' : 'resultados'} para “<c:out value="${busqueda}" />”</strong>
+        <strong>${totalRegistros} ${totalRegistros == 1 ? 'resultado' : 'resultados'} para “<c:out value="${busqueda}" />”</strong>
         <span>Orden: Fecha, más recientes primero</span>
     </div>
 </c:if>
@@ -54,4 +54,5 @@
         <%@ include file="/WEB-INF/vistas/comunidad/tarjeta-reporte.jspf" %>
     </c:forEach>
 </div>
+<%@ include file="/WEB-INF/vistas/layout/paginacion-usuario.jspf" %>
 <%@ include file="/WEB-INF/vistas/layout/usuario-fin.jspf" %>

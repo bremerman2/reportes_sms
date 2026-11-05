@@ -31,43 +31,18 @@
     </div>
 </div>
 
-<%-- Buscar usuario por ID --%>
-<form action="${ctx}/usuarios" method="get" class="d-flex flex-wrap align-items-end gap-2 mb-3">
-    <div>
-        <label for="id" class="form-label fw-semibold mb-1">Buscar por ID</label>
-        <input type="number" class="form-control" id="id" name="id" min="1" step="1"
-               value="<c:out value='${idBuscado}' />" required>
+<%-- Buscar usuario por nombre --%>
+<form action="${ctx}/usuarios" method="get" class="d-flex flex-wrap align-items-end gap-2 mb-3" role="search">
+    <div class="flex-grow-1" style="max-width: 420px;">
+        <label for="q" class="form-label fw-semibold mb-1">Buscar por nombre</label>
+        <input type="search" class="form-control" id="q" name="q" maxlength="100"
+               placeholder="Ej.: Agustina o Acosta" value="<c:out value='${busqueda}' />">
     </div>
     <button type="submit" class="btn btn-outline-primary">Buscar</button>
-    <c:if test="${not empty idBuscado}">
+    <c:if test="${not empty busqueda}">
         <a href="${ctx}/usuarios" class="btn btn-link">Limpiar</a>
     </c:if>
 </form>
-
-<c:if test="${not empty error}">
-    <div class="alert alert-warning"><c:out value="${error}" /></div>
-</c:if>
-
-<c:if test="${not empty usuarioEncontrado}">
-    <c:set var="u" value="${usuarioEncontrado}" />
-    <div class="card border-0 shadow-sm mb-4">
-        <div class="card-header bg-white py-3">
-            <h2 class="h6 fw-bold mb-0">Usuario encontrado</h2>
-        </div>
-        <div class="card-body">
-            <dl class="row mb-0">
-                <dt class="col-sm-3">ID</dt><dd class="col-sm-9"><c:out value="${u.id_usuario}" /></dd>
-                <dt class="col-sm-3">Nombre</dt><dd class="col-sm-9"><c:out value="${u.nombre} ${u.apellido}" /></dd>
-                <dt class="col-sm-3">Teléfono</dt><dd class="col-sm-9"><c:out value="${u.telefono}" /></dd>
-                <dt class="col-sm-3">Email</dt><dd class="col-sm-9"><c:out value="${u.email}" /></dd>
-                <dt class="col-sm-3">Bloqueado</dt><dd class="col-sm-9">${u.bloqueado ? 'Sí' : 'No'}</dd>
-                <c:if test="${not empty u.administrador and u.administrador.id_administrador > 0}">
-                    <dt class="col-sm-3">ID administrador</dt><dd class="col-sm-9"><c:out value="${u.administrador.id_administrador}" /></dd>
-                </c:if>
-            </dl>
-        </div>
-    </div>
-</c:if>
 
 <div class="card border-0 shadow-sm">
     <div class="card-body p-0">
@@ -87,7 +62,7 @@
                 <c:forEach var="usuario" items="${listaUsuarios}">
                     <tr>
                         <td class="ps-4 text-body-secondary" data-label="ID"><c:out value="${usuario.id_usuario}" /></td>
-                        <td class="fw-medium as-celda-titulo"><c:out value="${usuario.nombre} ${usuario.apellido}" /></td>
+                        <td class="fw-medium as-celda-titulo"><a href="${ctx}/usuarios?accion=ver&amp;id=${usuario.id_usuario}" title="Ver perfil y reportes"><c:out value="${usuario.nombre} ${usuario.apellido}" /></a></td>
                         <td data-label="Email"><c:out value="${usuario.email}" /></td>
                         <td class="text-nowrap" data-label="Teléfono"><c:out value="${usuario.telefono}" /></td>
                         <td data-label="Estado">
@@ -118,7 +93,7 @@
                 <c:if test="${empty listaUsuarios}">
                     <tr>
                         <td colspan="6" class="text-center py-5">
-                            <p class="fw-semibold mb-0">No hay usuarios registrados</p>
+                            <p class="fw-semibold mb-0">${empty busqueda ? 'No hay usuarios registrados' : 'Ningún usuario coincide con ese nombre'}</p>
                         </td>
                     </tr>
                 </c:if>
@@ -127,5 +102,7 @@
         </div>
     </div>
 </div>
+
+<%@ include file="/WEB-INF/vistas/layout/paginacion-admin.jspf" %>
 
 <%@ include file="/WEB-INF/vistas/layout/admin-fin.jspf" %>

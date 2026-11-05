@@ -14,6 +14,19 @@
     <a href="${ctx}/numeros-oficiales?accion=nuevo" class="btn btn-primary">+ Nuevo número oficial</a>
 </div>
 
+<%-- Búsqueda --%>
+<form action="${ctx}/numeros-oficiales" method="get" class="d-flex flex-wrap align-items-end gap-2 mb-3" role="search">
+    <div class="flex-grow-1" style="max-width: 420px;">
+        <label for="q" class="form-label fw-semibold mb-1">Buscar por número o entidad</label>
+        <input type="search" class="form-control" id="q" name="q" maxlength="100"
+               placeholder="Ej.: 0800 o Banco" value="<c:out value='${busqueda}' />">
+    </div>
+    <button type="submit" class="btn btn-outline-primary">Buscar</button>
+    <c:if test="${not empty busqueda}">
+        <a href="${ctx}/numeros-oficiales" class="btn btn-link">Limpiar</a>
+    </c:if>
+</form>
+
 <div class="card border-0 shadow-sm">
     <div class="card-body p-0">
         <div class="table-responsive">
@@ -55,8 +68,8 @@
                 <c:if test="${empty listaNumeros}">
                     <tr>
                         <td colspan="7" class="text-center py-5">
-                            <p class="fw-semibold mb-1">No hay números oficiales registrados</p>
-                            <p class="text-body-secondary mb-0">Cargá el primero con el botón de arriba.</p>
+                            <p class="fw-semibold mb-1">${empty busqueda ? 'No hay números oficiales registrados' : 'Ningún número coincide con la búsqueda'}</p>
+                            <p class="text-body-secondary mb-0">${empty busqueda ? 'Cargá el primero con el botón de arriba.' : 'Probá con otra parte del número o de la entidad.'}</p>
                         </td>
                     </tr>
                 </c:if>
@@ -65,5 +78,7 @@
         </div>
     </div>
 </div>
+
+<%@ include file="/WEB-INF/vistas/layout/paginacion-admin.jspf" %>
 
 <%@ include file="/WEB-INF/vistas/layout/admin-fin.jspf" %>

@@ -1,6 +1,37 @@
+<%@ page pageEncoding="UTF-8" %>
         </main>
     </div>
 </div>
+
+<%-- Barra inferior fija con las funciones principales (solo en pantallas chicas).
+     Íconos de trazo redondeado al estilo Lucide. --%>
+<nav class="as-barra-inferior" aria-label="Navegación principal">
+    <a href="${ctx}/inicio" ${menuActivo == 'inicio' ? 'aria-current="page"' : ''}>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/>
+            <path d="M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+        </svg>
+        <span>Inicio</span>
+    </a>
+    <a href="${ctx}/reportar" ${menuActivo == 'reportar' ? 'aria-current="page"' : ''}>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="10"/><path d="M8 12h8"/><path d="M12 8v8"/>
+        </svg>
+        <span>Reportar</span>
+    </a>
+    <a href="${ctx}/mis-reportes" ${menuActivo == 'misReportes' ? 'aria-current="page"' : ''}>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="4" y="3" width="16" height="18" rx="3"/><path d="M8.5 9h7"/><path d="M8.5 13h7"/>
+        </svg>
+        <span>Mis reportes</span>
+    </a>
+    <a href="${ctx}/perfil" ${menuActivo == 'perfil' ? 'aria-current="page"' : ''}>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 0 0-16 0"/>
+        </svg>
+        <span>Mi cuenta</span>
+    </a>
+</nav>
 
 <script>
     // Abre y cierra el menú en pantallas chicas
@@ -10,6 +41,33 @@
         boton.addEventListener('click', function () {
             const abierto = menu.classList.toggle('abierto');
             boton.setAttribute('aria-expanded', abierto);
+        });
+    })();
+
+    // Menú flotante de las iniciales (Mi perfil / Cerrar sesión): se cierra al tocar afuera o con Escape
+    (function () {
+        const cuenta = document.getElementById('menu-cuenta');
+        if (!cuenta) return;
+        const boton = cuenta.querySelector('.as-avatar');
+        const lista = cuenta.querySelector('.as-cuenta-menu');
+
+        function cerrar() {
+            lista.hidden = true;
+            boton.setAttribute('aria-expanded', 'false');
+        }
+
+        boton.addEventListener('click', function (e) {
+            e.stopPropagation();
+            const abrir = lista.hidden;
+            lista.hidden = !abrir;
+            boton.setAttribute('aria-expanded', String(abrir));
+            if (abrir) lista.querySelector('a').focus();
+        });
+        document.addEventListener('click', function (e) {
+            if (!cuenta.contains(e.target)) cerrar();
+        });
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape' && !lista.hidden) { cerrar(); boton.focus(); }
         });
     })();
 </script>

@@ -10,84 +10,117 @@
     <c:if test="${not empty estadoFiltro}"><c:param name="estado" value="${estadoFiltro}" /></c:if>
 </c:url>
 
-<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
-    <div>
-        <h1 class="h3 fw-bold mb-1">Reporte #${reporte.idReporte}</h1>
-        <p class="text-body-secondary mb-0"><c:out value="${reporte.numeroTelefono}" /></p>
+<div class="as-detalle">
+
+    <%-- Encabezado: ruta, título y estado --%>
+    <div class="as-detalle-cabecera">
+        <div>
+            <p class="as-detalle-ruta"><a href="${urlListado}">Reportes SMS</a> / Detalle</p>
+            <h1 class="as-detalle-titulo">Reporte #${reporte.idReporte}</h1>
+        </div>
+        <c:choose>
+            <c:when test="${reporte.estado == 'confirmado'}"><span class="as-pastilla as-pastilla-confirmado">Confirmado</span></c:when>
+            <c:when test="${reporte.estado == 'falso_positivo'}"><span class="as-pastilla as-pastilla-falso">Falso positivo</span></c:when>
+            <c:otherwise><span class="as-pastilla as-pastilla-pendiente">Pendiente</span></c:otherwise>
+        </c:choose>
     </div>
-    <a href="${urlListado}" class="btn btn-outline-secondary">&larr; Volver al listado</a>
-</div>
 
-<div class="card border-0 shadow-sm mb-4">
-    <div class="card-body">
-        <dl class="row mb-0">
-            <dt class="col-sm-4 col-lg-3">Estado</dt>
-            <dd class="col-sm-8 col-lg-9">
-                <c:choose>
-                    <c:when test="${reporte.estado == 'confirmado'}"><span class="badge text-bg-danger">Confirmado</span></c:when>
-                    <c:when test="${reporte.estado == 'falso_positivo'}"><span class="badge text-bg-secondary">Falso positivo</span></c:when>
-                    <c:otherwise><span class="badge text-bg-warning">Pendiente</span></c:otherwise>
-                </c:choose>
-            </dd>
-            <dt class="col-sm-4 col-lg-3">Fecha</dt>
-            <dd class="col-sm-8 col-lg-9"><c:out value="${reporte.fechaTexto}" /></dd>
-            <dt class="col-sm-4 col-lg-3">Número reportado</dt>
-            <dd class="col-sm-8 col-lg-9">
-                <c:out value="${reporte.numeroTelefono}" />
-                <span class="text-body-secondary">(${reporte.cantidadReportesNumero} ${reporte.cantidadReportesNumero == 1 ? 'reporte' : 'reportes'})</span>
-            </dd>
-            <dt class="col-sm-4 col-lg-3">Reportado por</dt>
-            <dd class="col-sm-8 col-lg-9"><c:out value="${reporte.nombreUsuario}" /> <span class="text-body-secondary">(ID ${reporte.idUsuario})</span></dd>
-        </dl>
+    <div class="as-detalle-columnas">
 
-        <h2 class="h6 fw-bold mt-4 mb-2">Contenido del SMS</h2>
-        <p class="border p-3 mb-0" style="white-space: pre-wrap; overflow-wrap: anywhere;"><c:out value="${reporte.cuerpoSms}" /></p>
+        <%-- 1 · Información del reporte --%>
+        <section class="as-detalle-panel" aria-labelledby="titulo-info">
+            <h2 id="titulo-info" class="as-detalle-panel-titulo">Información del reporte</h2>
 
-        <c:if test="${not empty reporte.capturaPantalla}">
-            <h2 class="h6 fw-bold mt-4 mb-2">Captura del SMS</h2>
-            <a href="<c:out value='${reporte.capturaPantalla}' />" target="_blank" rel="noopener noreferrer">
-                <img src="<c:out value='${reporte.capturaPantalla}' />" alt="Captura del SMS reportado"
-                     class="img-fluid border" style="max-height: 420px;" loading="lazy">
-            </a>
-        </c:if>
+            <dl class="as-detalle-datos">
+                <dt>Número reportado</dt>
+                <%-- El número y la pastilla llevan al listado de reportes filtrado por ese número --%>
+                <c:url var="urlMismoNumero" value="/reportes"><c:param name="q" value="${reporte.numeroTelefono}" /></c:url>
+                <dd class="as-detalle-numero">
+                    <a class="as-link-numero" href="${urlMismoNumero}" title="Ver todos los reportes de este número"><c:out value="${reporte.numeroTelefono}" /></a>
+                    <a class="as-pastilla as-pastilla-roja as-pastilla-link" href="${urlMismoNumero}">${reporte.cantidadReportesNumero} ${reporte.cantidadReportesNumero == 1 ? 'reporte' : 'reportes'}</a>
+                </dd>
+                <dt>Reportado por</dt>
+                <dd><a href="${ctx}/usuarios?accion=ver&amp;id=${reporte.idUsuario}"><c:out value="${reporte.nombreUsuario}" /></a></dd>
+                <dt>Fecha</dt>
+                <dd><c:out value="${reporte.fechaLarga}" /></dd>
+            </dl>
 
+            <hr class="as-detalle-separador">
+
+            <h2 class="as-detalle-panel-titulo">Contenido del SMS</h2>
+            <div class="as-detalle-sms">
+                <p class="as-detalle-sms-etiqueta">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 9 9 0 0 1-4-.9L3 20l1.1-4A8.4 8.4 0 0 1 12 3.1a8.4 8.4 0 0 1 9 8.4z"/>
+                    </svg>
+                    Mensaje denunciado
+                </p>
+                <%-- Los enlaces se resaltan pero no se pueden abrir con un clic: son del SMS sospechoso --%>
+                <p class="as-detalle-sms-texto"><c:forEach var="parte" items="${reporte.partesSms}"><c:choose><c:when test="${parte.enlace}"><span class="as-enlace-sospechoso" title="Enlace del SMS (no se abre desde acá)"><c:out value="${parte.texto}" /></span></c:when><c:otherwise><c:out value="${parte.texto}" /></c:otherwise></c:choose></c:forEach></p>
+            </div>
+
+            <c:if test="${reporte.tieneEnlace}">
+                <p class="as-detalle-aviso">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+                    </svg>
+                    <span>El mensaje contiene un enlace externo. No abrirlo sin verificar su destino.</span>
+                </p>
+            </c:if>
+
+            <c:if test="${not empty reporte.capturaPantalla}">
+                <h2 class="as-detalle-panel-titulo mt-4">Captura del SMS</h2>
+                <a href="<c:out value='${reporte.capturaPantalla}' />" target="_blank" rel="noopener noreferrer">
+                    <img src="<c:out value='${reporte.capturaPantalla}' />" alt="Captura del SMS reportado"
+                         class="as-detalle-captura" loading="lazy">
+                </a>
+            </c:if>
+        </section>
+
+        <%-- 2 · Comentarios de usuarios --%>
+        <section class="as-detalle-panel" aria-labelledby="titulo-comentarios">
+            <div class="as-detalle-panel-cabecera">
+                <h2 id="titulo-comentarios" class="as-detalle-panel-titulo">Comentarios de usuarios</h2>
+                <span class="as-contador">${reporte.cantidadComentarios}</span>
+            </div>
+
+            <c:forEach var="com" items="${reporte.comentarios}">
+                <div class="as-detalle-comentario">
+                    <div class="as-detalle-comentario-cabecera">
+                        <strong><c:out value="${com.nombreUsuario}" /></strong>
+                        <span><c:out value="${com.fechaTexto}" /></span>
+                    </div>
+                    <p><c:out value="${com.comentario}" /></p>
+                </div>
+            </c:forEach>
+            <c:if test="${empty reporte.comentarios}">
+                <p class="text-body-secondary mb-0">Este reporte no tiene comentarios.</p>
+            </c:if>
+        </section>
+    </div>
+
+    <%-- Acciones --%>
+    <div class="as-detalle-acciones">
+        <a href="${urlListado}" class="btn btn-outline-secondary">&larr; Volver al listado</a>
         <c:if test="${reporte.estado != 'falso_positivo'}">
-            <div class="d-flex flex-wrap gap-2 mt-4 pt-3 border-top">
-                <c:if test="${reporte.estado == 'pendiente'}">
-                    <form action="${ctx}/reportes" method="post" class="d-inline">
-                        <input type="hidden" name="accion" value="confirmar">
-                        <input type="hidden" name="id" value="${reporte.idReporte}">
-                        <input type="hidden" name="origen" value="detalle">
-                        <input type="hidden" name="estadoFiltro" value="<c:out value='${estadoFiltro}' />">
-                        <button type="submit" class="btn btn-outline-danger">Confirmar</button>
-                    </form>
-                </c:if>
-                <form action="${ctx}/reportes" method="post" class="d-inline">
+            <div class="d-flex flex-wrap gap-2">
+                <form action="${ctx}/reportes" method="post" class="m-0">
                     <input type="hidden" name="accion" value="falso-positivo">
                     <input type="hidden" name="id" value="${reporte.idReporte}">
                     <input type="hidden" name="origen" value="detalle">
                     <input type="hidden" name="estadoFiltro" value="<c:out value='${estadoFiltro}' />">
-                    <button type="submit" class="btn btn-outline-secondary">Falso positivo</button>
+                    <button type="submit" class="btn btn-outline-secondary">Marcar falso positivo</button>
                 </form>
+                <c:if test="${reporte.estado == 'pendiente'}">
+                    <form action="${ctx}/reportes" method="post" class="m-0">
+                        <input type="hidden" name="accion" value="confirmar">
+                        <input type="hidden" name="id" value="${reporte.idReporte}">
+                        <input type="hidden" name="origen" value="detalle">
+                        <input type="hidden" name="estadoFiltro" value="<c:out value='${estadoFiltro}' />">
+                        <button type="submit" class="btn btn-primary">Confirmar reporte</button>
+                    </form>
+                </c:if>
             </div>
-        </c:if>
-    </div>
-</div>
-
-<div class="card border-0 shadow-sm">
-    <div class="card-body">
-        <h2 class="h6 fw-bold mb-3">Comentarios (${reporte.cantidadComentarios})</h2>
-        <c:forEach var="com" items="${reporte.comentarios}">
-            <div class="border-bottom pb-2 mb-2">
-                <div class="d-flex justify-content-between gap-2 small">
-                    <strong><c:out value="${com.nombreUsuario}" /></strong>
-                    <span class="text-body-secondary"><c:out value="${com.fechaTexto}" /></span>
-                </div>
-                <p class="mb-0" style="overflow-wrap: anywhere;"><c:out value="${com.comentario}" /></p>
-            </div>
-        </c:forEach>
-        <c:if test="${empty reporte.comentarios}">
-            <p class="text-body-secondary mb-0">Este reporte no tiene comentarios.</p>
         </c:if>
     </div>
 </div>

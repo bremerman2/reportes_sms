@@ -1,3 +1,4 @@
+<%@ page pageEncoding="UTF-8" %>
 <%--
   Tarjeta de un reporte completo (SMS, captura, comentarios y "Notificarme").
   La usan el muro (comunidad/inicio.jsp) y la página de un solo reporte (comunidad/reporte.jsp).
@@ -7,11 +8,13 @@
         <article class="as-tarjeta" id="reporte-${r.idReporte}">
 
             <div class="as-tarjeta-cabecera">
+                <%-- El número y "N reportes" llevan al listado de Inicio filtrado por ese número --%>
+                <c:url var="urlMismoNumero" value="/inicio"><c:param name="numero" value="${r.numeroTelefono}" /></c:url>
                 <div>
-                    <h2 class="as-tarjeta-numero"><c:out value="${r.numeroTelefono}" /></h2>
+                    <h2 class="as-tarjeta-numero"><a class="as-link-numero" href="${urlMismoNumero}" title="Ver todos los reportes de este número"><c:out value="${r.numeroTelefono}" /></a></h2>
                     <p class="as-tarjeta-meta">
                         Reportado por <c:out value="${r.nombreUsuario}" /> · <c:out value="${r.fechaTexto}" /> ·
-                            ${r.cantidadReportesNumero} ${r.cantidadReportesNumero == 1 ? 'reporte' : 'reportes'} de este número
+                        <a class="as-link-reportes" href="${urlMismoNumero}">${r.cantidadReportesNumero} ${r.cantidadReportesNumero == 1 ? 'reporte' : 'reportes'} de este número</a>
                     </p>
                 </div>
 

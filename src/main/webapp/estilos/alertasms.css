@@ -946,8 +946,8 @@ a { color: inherit; }
     color: var(--as-rojo) !important;
 }
 
-/* Listado de reportes (admin): el SMS ocupa el espacio libre y muestra hasta 2 renglones;
-   el texto completo está en el detalle del reporte */
+/* Listado de reportes (admin): el SMS se muestra entero y ocupa el espacio libre;
+   las acciones van apiladas para que la tabla no se salga de la pantalla */
 .as-sms-resumen {
     color: inherit;
     text-decoration: none;
@@ -957,15 +957,15 @@ a { color: inherit; }
 .as-sms-resumen:hover { text-decoration: underline; }
 
 @media (min-width: 641px) {
-    .as-contenido td.as-celda-sms { width: 45%; min-width: 280px; }
+    .as-contenido td.as-celda-sms { width: 40%; min-width: 220px; font-size: 14px; line-height: 1.4; }
+    .as-tabla-reportes td { vertical-align: top; }
+    .as-tabla-reportes td.as-celda-acciones { width: 1%; }
+}
 
-    .as-sms-resumen {
-        display: -webkit-box;
-        -webkit-box-orient: vertical;
-        -webkit-line-clamp: 2;
-        line-clamp: 2;
-        overflow: hidden;
-    }
+@media (max-width: 640px) {
+    /* En tarjetas, las acciones apiladas pasan a ir una al lado de la otra */
+    .as-tabla-cards td.as-celda-acciones > div { flex: 1 1 100%; flex-direction: row !important; }
+    .as-tabla-cards td.as-celda-acciones > div > * { flex: 1 1 0; }
 }
 
 .as-tabla-contenedor {
@@ -995,3 +995,348 @@ a { color: inherit; }
         padding: 18px 14px 30px;
     }
 }
+
+/* ---------- Detalle de un reporte (administración): dos paneles ---------- */
+
+.as-detalle {
+    padding: 24px;
+    border: 1px solid #e3dfdd;
+    border-radius: 18px;
+    background: #fff;
+}
+
+.as-detalle-cabecera {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.as-detalle-ruta { margin: 0 0 4px; font-size: 14px; color: var(--as-texto-suave); }
+.as-detalle-ruta a { color: inherit; text-decoration: none; }
+.as-detalle-ruta a:hover { text-decoration: underline; }
+.as-detalle-titulo { margin: 0; font-size: 26px; font-weight: 700; }
+
+.as-pastilla {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 500;
+    white-space: nowrap;
+}
+.as-pastilla-pendiente { background: #fde8de; color: #e8590c; }
+.as-pastilla-confirmado { background: var(--as-rojo-claro); color: var(--as-rojo-oscuro); }
+.as-pastilla-falso { background: var(--as-gris-badge); color: #555; }
+.as-pastilla-roja { background: var(--as-rojo-claro); color: var(--as-rojo); }
+
+.as-detalle-columnas {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+}
+
+.as-detalle-panel {
+    padding: 22px 24px;
+    border: 1px solid #e3dfdd;
+    border-radius: 14px;
+    background: #fff;
+}
+
+.as-detalle-panel-cabecera {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+}
+
+.as-detalle-panel-titulo { margin: 0 0 14px; font-size: 20px; font-weight: 700; }
+.as-detalle-panel-cabecera .as-detalle-panel-titulo { margin: 0; }
+
+.as-contador {
+    display: inline-grid;
+    place-items: center;
+    min-width: 32px;
+    height: 32px;
+    padding: 0 8px;
+    border-radius: 999px;
+    background: #f0eeed;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.as-detalle-datos { margin: 0; }
+.as-detalle-datos dt { margin-top: 12px; font-weight: 400; color: var(--as-texto-suave); }
+.as-detalle-datos dt:first-child { margin-top: 0; }
+.as-detalle-datos dd { margin: 4px 0 0; font-size: 17px; }
+.as-detalle-datos dd a { color: inherit; }
+
+.as-detalle-numero {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    font-size: 22px !important;
+    font-weight: 700;
+}
+.as-detalle-numero .as-pastilla { font-size: 13px; font-weight: 500; }
+
+.as-detalle-separador { margin: 22px 0; border: 0; border-top: 1px solid #e3dfdd; opacity: 1; }
+
+.as-detalle-sms { padding: 4px 0 0 24px; }
+.as-detalle-sms-etiqueta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 10px;
+    font-size: 15px;
+    font-weight: 600;
+}
+.as-detalle-sms-texto { margin: 0; font-size: 17px; line-height: 1.5; white-space: pre-wrap; overflow-wrap: anywhere; }
+
+/* Enlace del SMS: se resalta, pero no es un link real */
+.as-enlace-sospechoso {
+    border-bottom: 1.5px dotted currentColor;
+    cursor: help;
+}
+.as-enlace-sospechoso::after { content: " \2197"; font-size: 0.85em; }
+
+.as-detalle-aviso {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin: 18px 0 0;
+    font-size: 14px;
+    color: var(--as-texto-suave);
+}
+.as-detalle-aviso svg { flex-shrink: 0; color: var(--as-rojo); }
+
+.as-detalle-captura { max-width: 100%; max-height: 420px; border: 1px solid #e3dfdd; border-radius: 10px; }
+
+.as-detalle-comentario { padding: 16px 0; border-bottom: 1px solid #e3dfdd; }
+.as-detalle-comentario:last-child { border-bottom: 0; padding-bottom: 0; }
+.as-detalle-comentario-cabecera {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+.as-detalle-comentario-cabecera strong { font-weight: 600; }
+.as-detalle-comentario-cabecera span { color: var(--as-texto-suave); white-space: nowrap; }
+.as-detalle-comentario p { margin: 0; font-size: 16px; overflow-wrap: anywhere; }
+
+.as-detalle-acciones {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #e3dfdd;
+}
+
+@media (max-width: 900px) {
+    .as-detalle { padding: 16px; border-radius: 14px; }
+    .as-detalle-columnas { grid-template-columns: 1fr; }
+    .as-detalle-panel { padding: 18px; }
+    .as-detalle-sms { padding-left: 0; }
+}
+
+@media (max-width: 640px) {
+    .as-detalle-acciones, .as-detalle-acciones > div { flex-direction: column; align-items: stretch; }
+    .as-detalle-acciones .btn { width: 100%; }
+}
+
+/* ---------- Encabezado del usuario: Cerrar sesión, campana e iniciales (llevan a Mis datos) ---------- */
+
+.as-sesion { gap: 16px; }
+
+.as-nav-notificaciones {
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    color: var(--as-texto);
+}
+.as-nav-notificaciones:hover,
+.as-nav-notificaciones[aria-current="page"] { color: var(--as-rojo); }
+.as-nav-notificaciones .as-badge-notificacion { top: 1px; right: 0; }
+
+.as-avatar {
+    display: inline-grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border: 1.5px solid var(--as-borde);
+    background: var(--as-texto);
+    color: #fff;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+}
+.as-avatar:hover,
+.as-avatar[aria-expanded="true"] { background: var(--as-rojo); border-color: var(--as-rojo); }
+.as-avatar:focus-visible,
+.as-nav-notificaciones:focus-visible { outline: 2px solid var(--as-rojo); outline-offset: 2px; }
+
+/* Menú flotante de las iniciales */
+.as-cuenta { position: relative; }
+
+.as-cuenta-menu {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    z-index: 60;
+    min-width: 220px;
+    max-width: calc(100vw - 32px);
+    padding: 6px;
+    border: 1.5px solid var(--as-borde);
+    background: #fff;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.14);
+}
+
+.as-cuenta-nombre {
+    display: flex;
+    flex-direction: column;
+    margin: 0 0 6px;
+    padding: 8px 10px 10px;
+    border-bottom: 1px solid var(--as-linea);
+    font-size: 14px;
+}
+.as-cuenta-nombre span {
+    font-size: 12px;
+    color: var(--as-texto-suave);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.as-cuenta-menu a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    font-size: 14px;
+    text-decoration: none;
+}
+.as-cuenta-menu a:hover,
+.as-cuenta-menu a:focus-visible { background: var(--as-fondo-menu); outline: none; }
+.as-cuenta-menu a[aria-current="page"] { font-weight: 700; }
+.as-cuenta-menu .as-cuenta-salir { color: var(--as-rojo-oscuro); }
+
+/* ---------- Número que lleva al listado filtrado por ese número ---------- */
+
+.as-link-numero { color: inherit; text-decoration: none; }
+.as-link-numero:hover { color: var(--as-rojo); text-decoration: underline; text-underline-offset: 3px; }
+.as-link-reportes { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+.as-link-reportes:hover { color: var(--as-rojo); }
+a.as-pastilla-link { text-decoration: none; }
+a.as-pastilla-link:hover { background: var(--as-rojo); color: #fff; }
+
+/* ---------- Filtro de estado en segmentos ---------- */
+
+.as-segmentos {
+    flex: 1 1 100%;
+    display: grid;
+    grid-auto-columns: minmax(0, 1fr);
+    grid-auto-flow: column;
+    gap: 4px;
+    padding: 4px;
+    border: 1px solid var(--as-borde-suave);
+    background: #f7f7f7;
+}
+
+.as-segmentos a {
+    padding: 8px 6px;
+    text-align: center;
+    font-size: 14px;
+    color: var(--as-texto-suave);
+    text-decoration: none;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.as-segmentos a:hover { color: var(--as-texto); background: #ececec; }
+
+.as-segmentos a[aria-current="true"] {
+    background: #fff;
+    color: var(--as-texto);
+    font-weight: 700;
+    box-shadow: inset 0 -2px 0 var(--as-rojo);
+}
+
+/* ---------- Barra de navegación inferior fija (pantallas chicas) ---------- */
+
+.as-barra-inferior { display: none; }
+
+@media (max-width: 960px) {
+    /* Fija abajo: no se mueve al hacer scroll */
+    .as-barra-inferior {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 100;
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        padding: 8px 4px calc(8px + env(safe-area-inset-bottom));
+        border-top: 1px solid var(--as-linea);
+        background: #fff;
+        box-shadow: 0 -4px 14px rgba(0, 0, 0, 0.05);
+    }
+
+    .as-barra-inferior a {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+        padding: 4px 2px;
+        font-size: 12px;
+        line-height: 1.2;
+        color: #8a8a8a;
+        text-decoration: none;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    .as-barra-inferior svg { display: block; width: 24px; height: 24px; flex-shrink: 0; }
+    .as-barra-inferior a:hover { color: var(--as-texto); }
+
+    /* Activo: ícono en rojo y texto oscuro */
+    .as-barra-inferior a[aria-current="page"] { color: var(--as-texto); font-weight: 600; }
+    .as-barra-inferior a[aria-current="page"] svg { color: var(--as-rojo); }
+
+    /* Que el contenido no quede tapado por la barra */
+    .as-app { padding-bottom: calc(76px + env(safe-area-inset-bottom)); }
+}
+
+@media (max-width: 640px) {
+    .as-segmentos a { font-size: 13px; padding: 8px 2px; }
+    .as-sesion { gap: 10px; }
+}
+
+@media (max-width: 640px) {
+    /* Encabezado en un solo renglón: marca a la izquierda; salir, campana e iniciales a la derecha */
+    .as-encabezado { flex-wrap: nowrap; gap: 8px; }
+    .as-marca span { display: none; }
+    .as-sesion { flex-wrap: nowrap; }
+}
+
+@media (max-width: 420px) {
+    /* Los cuatro estados no entran en una fila sin cortarse: van en dos filas de dos */
+    .as-segmentos { grid-auto-flow: row; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+/* Segmentos de selección múltiple (Inicio): cada estado elegido queda marcado con ✓ */
+.as-segmentos a[aria-pressed="true"] {
+    background: #fff;
+    color: var(--as-texto);
+    font-weight: 700;
+    box-shadow: inset 0 -2px 0 var(--as-rojo);
+}
+.as-segmento-check { margin-right: 4px; color: var(--as-rojo); }

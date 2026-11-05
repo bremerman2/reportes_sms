@@ -1,0 +1,31 @@
+<%@ page pageEncoding="UTF-8" %>
+<%--
+  Filtro de estado en segmentos (Todos / Pendientes / Confirmados / Falsos positivos).
+  · Varios estados (Inicio): el servlet manda segmentosEstado, cada uno con etiqueta, activo y url;
+    tocar un estado lo agrega o lo quita, y "Todos" limpia la selección.
+  · Un solo estado (Mis reportes): se define rutaFiltro (ej.: "/mis-reportes") y se usa filtroEstado.
+  En los dos casos los links conservan el número buscado y vuelven a la página 1.
+--%>
+<c:choose>
+    <c:when test="${not empty segmentosEstado}">
+        <nav class="as-segmentos as-segmentos-multiple" aria-label="Filtrar por estado (podés elegir varios)">
+            <c:forEach var="seg" items="${segmentosEstado}">
+                <a href="<c:out value='${seg.url}' />" role="button" aria-pressed="${seg.activo}">
+                    <c:if test="${seg.activo and seg.etiqueta != 'Todos'}"><span class="as-segmento-check" aria-hidden="true">✓</span></c:if><c:out value="${seg.etiqueta}" />
+                </a>
+            </c:forEach>
+        </nav>
+    </c:when>
+    <c:otherwise>
+        <nav class="as-segmentos" aria-label="Filtrar por estado">
+            <c:forTokens var="opcion" items="|Todos,pendiente|Pendientes,confirmado|Confirmados,falso_positivo|Falsos positivos" delims=",">
+                <c:set var="valorEstado" value="${fn:substringBefore(opcion, '|')}" />
+                <c:url var="urlEstado" value="${rutaFiltro}">
+                    <c:if test="${not empty filtroNumero}"><c:param name="numero" value="${filtroNumero}" /></c:if>
+                    <c:if test="${not empty valorEstado}"><c:param name="estado" value="${valorEstado}" /></c:if>
+                </c:url>
+                <a href="${urlEstado}" ${filtroEstado == valorEstado ? 'aria-current="true"' : ''}>${fn:substringAfter(opcion, '|')}</a>
+            </c:forTokens>
+        </nav>
+    </c:otherwise>
+</c:choose>

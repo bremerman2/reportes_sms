@@ -14,6 +14,19 @@
     <a href="${ctx}/prefijos?accion=nuevo" class="btn btn-primary">+ Nuevo prefijo</a>
 </div>
 
+<%-- Búsqueda --%>
+<form action="${ctx}/prefijos" method="get" class="d-flex flex-wrap align-items-end gap-2 mb-3" role="search">
+    <div class="flex-grow-1" style="max-width: 420px;">
+        <label for="q" class="form-label fw-semibold mb-1">Buscar por país o prefijo</label>
+        <input type="search" class="form-control" id="q" name="q" maxlength="100"
+               placeholder="Ej.: Uruguay o 598" value="<c:out value='${busqueda}' />">
+    </div>
+    <button type="submit" class="btn btn-outline-primary">Buscar</button>
+    <c:if test="${not empty busqueda}">
+        <a href="${ctx}/prefijos" class="btn btn-link">Limpiar</a>
+    </c:if>
+</form>
+
 <div class="card border-0 shadow-sm">
     <div class="card-body p-0">
         <div class="table-responsive">
@@ -48,8 +61,8 @@
                 <c:if test="${empty listaPrefijos}">
                     <tr>
                         <td colspan="4" class="text-center py-5">
-                            <p class="fw-semibold mb-1">Todavía no hay prefijos</p>
-                            <p class="text-body-secondary mb-0">Creá el primero con el botón de arriba.</p>
+                            <p class="fw-semibold mb-1">${empty busqueda ? 'Todavía no hay prefijos' : 'Ningún país coincide con la búsqueda'}</p>
+                            <p class="text-body-secondary mb-0">${empty busqueda ? 'Creá el primero con el botón de arriba.' : 'Probá con otro nombre o prefijo.'}</p>
                         </td>
                     </tr>
                 </c:if>
@@ -58,5 +71,7 @@
         </div>
     </div>
 </div>
+
+<%@ include file="/WEB-INF/vistas/layout/paginacion-admin.jspf" %>
 
 <%@ include file="/WEB-INF/vistas/layout/admin-fin.jspf" %>

@@ -22,7 +22,7 @@ public class ComunidadServlet extends HttpServlet {
         if (busqueda.length() > 100) busqueda = busqueda.substring(0, 100);
         request.setAttribute("busqueda", busqueda);
 
-        List<ReporteComunidad> listaReportes = new ComunidadDAO().listarReportesComunidad(busqueda);
+        List<ReporteComunidad> listaReportes = Paginacion.paginar(request, new ComunidadDAO().listarReportesComunidad(busqueda));
 
         HttpSession session = request.getSession(false);
         if (session != null && session.getAttribute("usuarioLogueado") instanceof Usuario usuario) {

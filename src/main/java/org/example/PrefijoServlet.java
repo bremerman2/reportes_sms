@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
+import java.util.List;
 
 // Reemplaza "3. Gestion de Prefijos" del menú de consola
 //   GET  /prefijos                       -> listado
@@ -41,9 +42,20 @@ public class PrefijoServlet extends HttpServlet {
             request.getRequestDispatcher(FORMULARIO).forward(request, response);
 
         } else {
-            request.setAttribute("listaPrefijos", dao.obtenerPrefijos());
+            String busqueda = UtilWeb.texto(request, "q");
+            request.setAttribute("busqueda", busqueda);
+            request.setAttribute("listaPrefijos", Paginacion.paginar(request, filtrar(dao.obtenerPrefijos(), busqueda)));
             request.getRequestDispatcher(LISTA).forward(request, response);
         }
+    }
+
+    // Búsqueda por país o por prefijo ("uru" o "598"). La usa también el listado público.
+    public static List<Pais_prefijo> filtrar(List<Pais_prefijo> lista, String busqueda) {
+        if (busqueda.isBlank()) return lista;
+        return lista.stream()
+                .filter(p -> Paginacion.contiene(p.getNombre_pais(), busqueda)
+                        || Paginacion.contieneNumero(p.getPrefijo(), busqueda))
+                .toList();
     }
 
     @Override

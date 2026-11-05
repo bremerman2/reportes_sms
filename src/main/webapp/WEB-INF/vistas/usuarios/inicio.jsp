@@ -1,5 +1,6 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
+<%@ taglib prefix="fn" uri="jakarta.tags.functions" %>
 <c:set var="tituloPagina" value="Inicio" />
 <c:set var="menuActivo" value="inicio" />
 <%@ include file="/WEB-INF/vistas/layout/usuario-inicio.jspf" %>
@@ -25,19 +26,13 @@
                     <input type="search" id="numero" name="numero" inputmode="tel" maxlength="20"
                            placeholder="Ej.: 91 204" value="<c:out value='${filtroNumero}' />">
                 </div>
-                <div class="as-campo">
-                    <label for="estado">Estado</label>
-                    <select id="estado" name="estado">
-                        <option value="">Todos</option>
-                        <option value="pendiente" ${filtroEstado == 'pendiente' ? 'selected' : ''}>Pendiente</option>
-                        <option value="confirmado" ${filtroEstado == 'confirmado' ? 'selected' : ''}>Confirmado</option>
-                        <option value="falso_positivo" ${filtroEstado == 'falso_positivo' ? 'selected' : ''}>Falso positivo</option>
-                    </select>
-                </div>
+                <%-- Los estados se eligen con los segmentos de abajo (se pueden marcar varios); al buscar se conservan --%>
+                <c:forEach var="e" items="${estadosElegidos}"><input type="hidden" name="estado" value="${e}"></c:forEach>
                 <div class="as-filtros-acciones">
                     <button class="as-boton as-boton-secundario" type="submit">Buscar</button>
                     <a class="as-link-rojo" href="${ctx}/inicio">Limpiar</a>
                 </div>
+                <%@ include file="/WEB-INF/vistas/layout/filtro-estados.jspf" %>
             </form>
 
             <%-- 5 · Resultados --%>
@@ -91,30 +86,7 @@
                         </tbody>
                     </table>
 
-                    <%-- Paginación: los links conservan la búsqueda y el filtro --%>
-                    <c:url var="urlAnterior" value="/inicio">
-                        <c:param name="numero" value="${filtroNumero}" />
-                        <c:param name="estado" value="${filtroEstado}" />
-                        <c:param name="pagina" value="${paginaActual - 1}" />
-                    </c:url>
-                    <c:url var="urlSiguiente" value="/inicio">
-                        <c:param name="numero" value="${filtroNumero}" />
-                        <c:param name="estado" value="${filtroEstado}" />
-                        <c:param name="pagina" value="${paginaActual + 1}" />
-                    </c:url>
-                    <div class="as-paginacion">
-                        <span>Página ${paginaActual} de ${totalPaginas} · ${desdeRegistro}–${hastaRegistro} de ${totalRegistros}</span>
-                        <div>
-                            <c:choose>
-                                <c:when test="${paginaActual > 1}"><a class="as-boton as-boton-secundario" href="${urlAnterior}">Anterior</a></c:when>
-                                <c:otherwise><span class="as-boton as-boton-secundario" aria-disabled="true">Anterior</span></c:otherwise>
-                            </c:choose>
-                            <c:choose>
-                                <c:when test="${paginaActual < totalPaginas}"><a class="as-boton as-boton-secundario" href="${urlSiguiente}">Siguiente</a></c:when>
-                                <c:otherwise><span class="as-boton as-boton-secundario" aria-disabled="true">Siguiente</span></c:otherwise>
-                            </c:choose>
-                        </div>
-                    </div>
+                    <%@ include file="/WEB-INF/vistas/layout/paginacion-usuario.jspf" %>
                 </c:otherwise>
             </c:choose>
 <%@ include file="/WEB-INF/vistas/layout/usuario-fin.jspf" %>

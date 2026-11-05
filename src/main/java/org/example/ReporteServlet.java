@@ -50,7 +50,15 @@ public class ReporteServlet extends HttpServlet {
             UtilWeb.mensajeError(request, "Estado inválido");
         }
 
-        request.setAttribute("listaReportes", estado == null ? dao.listarReportes() : dao.buscarPorEstado(estado));
+        // búsqueda por número o texto del SMS + estado, paginado en SQL
+        String busqueda = UtilWeb.texto(request, "q");
+        if (busqueda.length() > 100) busqueda = busqueda.substring(0, 100);
+        String estadoBD = estado == null ? "" : estado.name().toLowerCase();
+        ComunidadDAO comunidadDAO = new ComunidadDAO();
+        int desde = Paginacion.calcular(request, comunidadDAO.contarReportesAdmin(busqueda, estadoBD), Paginacion.POR_PAGINA);
+
+        request.setAttribute("listaReportes", comunidadDAO.listarReportesAdmin(busqueda, estadoBD, desde, Paginacion.POR_PAGINA));
+        request.setAttribute("busqueda", busqueda);
         request.setAttribute("estadoFiltro", estado == null ? "" : estado.name());
         request.setAttribute("estados", estado_reporte.values());
         request.setAttribute("estadisticas", dao.consultarEstadisticas());

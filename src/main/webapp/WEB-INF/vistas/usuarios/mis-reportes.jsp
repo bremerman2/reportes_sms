@@ -15,20 +15,20 @@
                 <a class="as-boton as-boton-primario" href="${ctx}/reportar">+ Reportar SMS</a>
             </div>
 
-            <form class="as-filtros" action="${ctx}/mis-reportes" method="get">
-                <div class="as-campo">
-                    <label for="estado">Estado</label>
-                    <select id="estado" name="estado">
-                        <option value="">Todos</option>
-                        <option value="pendiente" ${filtroEstado == 'pendiente' ? 'selected' : ''}>Pendiente</option>
-                        <option value="confirmado" ${filtroEstado == 'confirmado' ? 'selected' : ''}>Confirmado</option>
-                        <option value="falso_positivo" ${filtroEstado == 'falso_positivo' ? 'selected' : ''}>Falso positivo</option>
-                    </select>
+            <form class="as-filtros" action="${ctx}/mis-reportes" method="get" role="search">
+                <div class="as-campo as-campo-ancho">
+                    <label for="numero">Buscar por número</label>
+                    <input type="search" id="numero" name="numero" inputmode="tel" maxlength="20"
+                           placeholder="Ej.: 91 204" value="<c:out value='${filtroNumero}' />">
                 </div>
+                <%-- El estado se elige con los segmentos de abajo; al buscar se conserva --%>
+                <c:if test="${not empty filtroEstado}"><input type="hidden" name="estado" value="${filtroEstado}"></c:if>
                 <div class="as-filtros-acciones">
-                    <button class="as-boton as-boton-secundario" type="submit">Filtrar</button>
+                    <button class="as-boton as-boton-secundario" type="submit">Buscar</button>
                     <a class="as-link-rojo" href="${ctx}/mis-reportes">Limpiar</a>
                 </div>
+                <c:set var="rutaFiltro" value="/mis-reportes" />
+                <%@ include file="/WEB-INF/vistas/layout/filtro-estados.jspf" %>
             </form>
 
             <div class="as-resultados-cabecera">
@@ -41,8 +41,8 @@
                     <div class="as-vacio">
                         <c:choose>
                             <c:when test="${hayFiltros}">
-                                <h2>No tenés reportes con ese estado</h2>
-                                <p>Probá con otro estado o tocá Limpiar para ver todos.</p>
+                                <h2>No tenés reportes que coincidan</h2>
+                                <p>Probá con otro número o estado, o tocá Limpiar para ver todos.</p>
                             </c:when>
                             <c:otherwise>
                                 <h2>Todavía no hiciste ningún reporte</h2>
@@ -88,27 +88,7 @@
                         </tbody>
                     </table>
 
-                    <c:url var="urlAnterior" value="/mis-reportes">
-                        <c:param name="estado" value="${filtroEstado}" />
-                        <c:param name="pagina" value="${paginaActual - 1}" />
-                    </c:url>
-                    <c:url var="urlSiguiente" value="/mis-reportes">
-                        <c:param name="estado" value="${filtroEstado}" />
-                        <c:param name="pagina" value="${paginaActual + 1}" />
-                    </c:url>
-                    <div class="as-paginacion">
-                        <span>Página ${paginaActual} de ${totalPaginas} · ${desdeRegistro}–${hastaRegistro} de ${totalRegistros}</span>
-                        <div>
-                            <c:choose>
-                                <c:when test="${paginaActual > 1}"><a class="as-boton as-boton-secundario" href="${urlAnterior}">Anterior</a></c:when>
-                                <c:otherwise><span class="as-boton as-boton-secundario" aria-disabled="true">Anterior</span></c:otherwise>
-                            </c:choose>
-                            <c:choose>
-                                <c:when test="${paginaActual < totalPaginas}"><a class="as-boton as-boton-secundario" href="${urlSiguiente}">Siguiente</a></c:when>
-                                <c:otherwise><span class="as-boton as-boton-secundario" aria-disabled="true">Siguiente</span></c:otherwise>
-                            </c:choose>
-                        </div>
-                    </div>
+                    <%@ include file="/WEB-INF/vistas/layout/paginacion-usuario.jspf" %>
                 </c:otherwise>
             </c:choose>
 <%@ include file="/WEB-INF/vistas/layout/usuario-fin.jspf" %>

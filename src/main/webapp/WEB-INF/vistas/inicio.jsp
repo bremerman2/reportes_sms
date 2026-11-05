@@ -40,7 +40,7 @@
 
 <div class="card border-0 shadow-sm mb-4">
     <div class="card-body">
-        <h2 class="h5 fw-bold mb-3">Números con más reportes</h2>
+        <h2 class="h5 fw-bold mb-3">Números con más reportes (top 10)</h2>
         <c:if test="${empty estadisticas}">
             <p class="text-body-secondary mb-0">No hay registros de reportes para mostrar aún.</p>
         </c:if>
@@ -54,7 +54,7 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <c:forEach var="stat" items="${estadisticas}">
+                    <c:forEach var="stat" items="${estadisticas}" end="9">
                         <tr>
                             <td class="fw-bold as-celda-titulo"><c:out value="${stat.numero_telefono}" /></td>
                             <td class="text-end" data-label="Total reportes">

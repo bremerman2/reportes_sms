@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.util.List;
 
 // Reemplaza "2. Gestion de Numeros Oficiales" del menú de consola
 //   GET  /numeros-oficiales                       -> listado
@@ -41,9 +42,21 @@ public class NumeroOficialServlet extends HttpServlet {
             mostrarFormulario(request, response, numero);
 
         } else {
-            request.setAttribute("listaNumeros", dao.listarNumOficiales());
+            String busqueda = UtilWeb.texto(request, "q");
+            request.setAttribute("busqueda", busqueda);
+            request.setAttribute("listaNumeros", Paginacion.paginar(request, filtrar(dao.listarNumOficiales(), busqueda)));
             request.getRequestDispatcher(LISTA).forward(request, response);
         }
+    }
+
+    // Búsqueda por número (con o sin prefijo) o por nombre de la entidad. La usa también el listado público.
+    public static List<Numero_oficial> filtrar(List<Numero_oficial> lista, String busqueda) {
+        if (busqueda.isBlank()) return lista;
+        return lista.stream()
+                .filter(n -> Paginacion.contiene(n.getNombre_entidad(), busqueda)
+                        || Paginacion.contieneNumero((n.getPais_prefijo() == null ? "" : n.getPais_prefijo().getPrefijo())
+                        + n.getNumero_telefono(), busqueda))
+                .toList();
     }
 
     // el formulario necesita la lista de prefijos para el desplegable

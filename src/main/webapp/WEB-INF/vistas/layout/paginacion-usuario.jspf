@@ -1,0 +1,20 @@
+<%@ page pageEncoding="UTF-8" %>
+<%--
+  Barra "Anterior / Siguiente" de los listados del panel de usuario.
+  Usa lo que deja Paginacion.calcular(...) en el request; los links conservan búsqueda y filtros.
+--%>
+<c:if test="${totalRegistros > 0}">
+    <div class="as-paginacion">
+        <span>Página ${paginaActual} de ${totalPaginas} · ${desdeRegistro}–${hastaRegistro} de ${totalRegistros}</span>
+        <div>
+            <c:choose>
+                <c:when test="${paginaActual > 1}"><a class="as-boton as-boton-secundario" href="<c:out value='${urlPagina}${paginaActual - 1}' />">Anterior</a></c:when>
+                <c:otherwise><span class="as-boton as-boton-secundario" aria-disabled="true">Anterior</span></c:otherwise>
+            </c:choose>
+            <c:choose>
+                <c:when test="${paginaActual < totalPaginas}"><a class="as-boton as-boton-secundario" href="<c:out value='${urlPagina}${paginaActual + 1}' />">Siguiente</a></c:when>
+                <c:otherwise><span class="as-boton as-boton-secundario" aria-disabled="true">Siguiente</span></c:otherwise>
+            </c:choose>
+        </div>
+    </div>
+</c:if>

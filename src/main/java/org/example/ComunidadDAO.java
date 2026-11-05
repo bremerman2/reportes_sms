@@ -3,6 +3,7 @@ package org.example;
 import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class ComunidadDAO {
@@ -178,24 +179,30 @@ public class ComunidadDAO {
             " LEFT JOIN pais_prefijo pp ON pp.id_prefijo = nr.id_prefijo";
 
     // Arma el WHERE según los filtros que vinieron. digitos = solo los números de la búsqueda.
-    private String whereRecientes(String digitos, String estado) {
+    // estados: los estados elegidos (vacío = todos); con varios se arma un IN (?, ?, ...)
+    private String whereRecientes(String digitos, List<String> estados) {
         StringBuilder where = new StringBuilder(" WHERE 1 = 1");
         if (!digitos.isEmpty()) {
             // Se compara sin espacios, guiones ni "+" (prefijo + número), así "91 204" encuentra "+598 91 204 773"
             where.append(" AND REGEXP_REPLACE(CONCAT(COALESCE(pp.prefijo, ''), nr.numero_telefono), '[^0-9]', '') LIKE ?");
         }
-        if (!estado.isEmpty()) {
-            where.append(" AND r.estado_reporte = ?");
+        if (!estados.isEmpty()) {
+            where.append(" AND r.estado_reporte IN (").append(String.join(", ", Collections.nCopies(estados.size(), "?"))).append(")");
         }
         return where.toString();
     }
 
     // Carga los parámetros del WHERE y devuelve el índice del próximo "?"
-    private int cargarFiltros(PreparedStatement ps, String digitos, String estado) throws SQLException {
+    private int cargarFiltros(PreparedStatement ps, String digitos, List<String> estados) throws SQLException {
         int i = 1;
         if (!digitos.isEmpty()) ps.setString(i++, "%" + digitos + "%");
-        if (!estado.isEmpty()) ps.setString(i++, estado);
+        for (String estado : estados) ps.setString(i++, estado);
         return i;
+    }
+
+    // "" -> ningún filtro de estado; "pendiente" -> solo ese
+    private List<String> unEstado(String estado) {
+        return estado.isEmpty() ? List.of() : List.of(estado);
     }
 
     // Para que un % o _ escrito por el usuario se busque literal y no como comodín del LIKE
@@ -207,11 +214,11 @@ public class ComunidadDAO {
         return numero == null ? "" : numero.replaceAll("\\D", "");
     }
 
-    public int contarRecientes(String numero, String estado) {
+    public int contarRecientes(String numero, List<String> estados) {
         String digitos = soloDigitos(numero);
-        String sql = "SELECT COUNT(*)" + FROM_RECIENTES + whereRecientes(digitos, estado);
+        String sql = "SELECT COUNT(*)" + FROM_RECIENTES + whereRecientes(digitos, estados);
         try (Connection con = ConexionDB.obtenerConexion(); PreparedStatement ps = con.prepareStatement(sql)) {
-            cargarFiltros(ps, digitos, estado);
+            cargarFiltros(ps, digitos, estados);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) return rs.getInt(1);
             }
@@ -221,14 +228,14 @@ public class ComunidadDAO {
         return 0;
     }
 
-    public List<ReporteComunidad> listarRecientes(String numero, String estado, int desde, int cantidad) {
+    public List<ReporteComunidad> listarRecientes(String numero, List<String> estados, int desde, int cantidad) {
         List<ReporteComunidad> lista = new ArrayList<>();
         String digitos = soloDigitos(numero);
         String sql = "SELECT r.id_reporte, r.fecha_hora, r.estado_reporte, nr.numero_telefono, pp.prefijo" +
-                FROM_RECIENTES + whereRecientes(digitos, estado) +
+                FROM_RECIENTES + whereRecientes(digitos, estados) +
                 " ORDER BY r.fecha_hora DESC, r.id_reporte DESC LIMIT ? OFFSET ?";
         try (Connection con = ConexionDB.obtenerConexion(); PreparedStatement ps = con.prepareStatement(sql)) {
-            int i = cargarFiltros(ps, digitos, estado);
+            int i = cargarFiltros(ps, digitos, estados);
             ps.setInt(i++, cantidad);
             ps.setInt(i, desde);
             try (ResultSet rs = ps.executeQuery()) {
@@ -248,12 +255,87 @@ public class ComunidadDAO {
         return lista;
     }
 
-    public int contarMisReportes(int idUsuario, String estado) {
-        String sql = "SELECT COUNT(*) FROM reporte r WHERE r.id_usuario = ?"
-                + (estado.isEmpty() ? "" : " AND r.estado_reporte = ?");
+    // ---------- Listado de reportes de administración: búsqueda por número o texto del SMS, filtro por estado ----------
+
+    // estado: "pendiente" | "confirmado" | "falso_positivo" o "" para todos
+    private String whereAdmin(String texto, String digitos, String estado) {
+        StringBuilder where = new StringBuilder(" WHERE 1 = 1");
+        if (!texto.isEmpty()) {
+            where.append(" AND (LOWER(r.cuerpo_sms) LIKE LOWER(?)");
+            if (!digitos.isEmpty()) {
+                where.append(" OR REGEXP_REPLACE(CONCAT(COALESCE(pp.prefijo, ''), nr.numero_telefono), '[^0-9]', '') LIKE ?");
+            }
+            where.append(")");
+        }
+        if (!estado.isEmpty()) where.append(" AND r.estado_reporte = ?");
+        return where.toString();
+    }
+
+    private int cargarFiltrosAdmin(PreparedStatement ps, String texto, String digitos, String estado) throws SQLException {
+        int i = 1;
+        if (!texto.isEmpty()) {
+            ps.setString(i++, "%" + escaparLike(texto) + "%");
+            if (!digitos.isEmpty()) ps.setString(i++, "%" + digitos + "%");
+        }
+        if (!estado.isEmpty()) ps.setString(i++, estado);
+        return i;
+    }
+
+    public int contarReportesAdmin(String busqueda, String estado) {
+        String texto = busqueda == null ? "" : busqueda.trim();
+        String digitos = soloDigitos(texto).length() < 3 ? "" : soloDigitos(texto);
+        String sql = "SELECT COUNT(*)" + FROM_RECIENTES + whereAdmin(texto, digitos, estado);
         try (Connection con = ConexionDB.obtenerConexion(); PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setInt(1, idUsuario);
-            if (!estado.isEmpty()) ps.setString(2, estado);
+            cargarFiltrosAdmin(ps, texto, digitos, estado);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al contar reportes (admin): " + e.getMessage());
+        }
+        return 0;
+    }
+
+    public List<ReporteComunidad> listarReportesAdmin(String busqueda, String estado, int desde, int cantidad) {
+        List<ReporteComunidad> lista = new ArrayList<>();
+        String texto = busqueda == null ? "" : busqueda.trim();
+        String digitos = soloDigitos(texto).length() < 3 ? "" : soloDigitos(texto);
+        String sql = "SELECT r.id_reporte, r.fecha_hora, r.cuerpo_sms, r.estado_reporte, r.id_usuario, u.nombre, u.apellido, " +
+                "nr.numero_telefono, nr.cantidad_reportes, pp.prefijo" +
+                FROM_RECIENTES + " JOIN usuario u ON u.id_usuario = r.id_usuario" + whereAdmin(texto, digitos, estado) +
+                " ORDER BY r.fecha_hora DESC, r.id_reporte DESC LIMIT ? OFFSET ?";
+        try (Connection con = ConexionDB.obtenerConexion(); PreparedStatement ps = con.prepareStatement(sql)) {
+            int i = cargarFiltrosAdmin(ps, texto, digitos, estado);
+            ps.setInt(i++, cantidad);
+            ps.setInt(i, desde);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    ReporteComunidad r = new ReporteComunidad();
+                    r.setIdReporte(rs.getInt("id_reporte"));
+                    Timestamp fecha = rs.getTimestamp("fecha_hora");
+                    r.setFechaHora(fecha == null ? null : fecha.toLocalDateTime());
+                    r.setCuerpoSms(rs.getString("cuerpo_sms"));
+                    r.setEstado(rs.getString("estado_reporte"));
+                    r.setIdUsuario(rs.getInt("id_usuario"));
+                    r.setNombreUsuario(rs.getString("nombre") + " " + rs.getString("apellido"));
+                    r.setNumeroTelefono(numeroConPrefijo(rs.getString("prefijo"), rs.getString("numero_telefono")));
+                    r.setCantidadReportesNumero(rs.getInt("cantidad_reportes"));
+                    lista.add(r);
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al listar reportes (admin): " + e.getMessage());
+        }
+        return lista;
+    }
+
+    // Reportes de un usuario (Mis reportes y el perfil del usuario en administración), filtrables por número y estado
+    public int contarMisReportes(int idUsuario, String numero, String estado) {
+        String digitos = soloDigitos(numero);
+        String sql = "SELECT COUNT(*)" + FROM_RECIENTES + whereRecientes(digitos, unEstado(estado)) + " AND r.id_usuario = ?";
+        try (Connection con = ConexionDB.obtenerConexion(); PreparedStatement ps = con.prepareStatement(sql)) {
+            int i = cargarFiltros(ps, digitos, unEstado(estado));
+            ps.setInt(i, idUsuario);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) return rs.getInt(1);
             }
@@ -263,16 +345,15 @@ public class ComunidadDAO {
         return 0;
     }
 
-    public List<ReporteComunidad> listarMisReportes(int idUsuario, String estado, int desde, int cantidad) {
+    public List<ReporteComunidad> listarMisReportes(int idUsuario, String numero, String estado, int desde, int cantidad) {
         List<ReporteComunidad> lista = new ArrayList<>();
+        String digitos = soloDigitos(numero);
         String sql = "SELECT r.id_reporte, r.fecha_hora, r.cuerpo_sms, r.estado_reporte, nr.numero_telefono, nr.cantidad_reportes, pp.prefijo" +
-                FROM_RECIENTES + " WHERE r.id_usuario = ?" +
-                (estado.isEmpty() ? "" : " AND r.estado_reporte = ?") +
+                FROM_RECIENTES + whereRecientes(digitos, unEstado(estado)) + " AND r.id_usuario = ?" +
                 " ORDER BY r.fecha_hora DESC, r.id_reporte DESC LIMIT ? OFFSET ?";
         try (Connection con = ConexionDB.obtenerConexion(); PreparedStatement ps = con.prepareStatement(sql)) {
-            int i = 1;
+            int i = cargarFiltros(ps, digitos, unEstado(estado));
             ps.setInt(i++, idUsuario);
-            if (!estado.isEmpty()) ps.setString(i++, estado);
             ps.setInt(i++, cantidad);
             ps.setInt(i, desde);
             try (ResultSet rs = ps.executeQuery()) {

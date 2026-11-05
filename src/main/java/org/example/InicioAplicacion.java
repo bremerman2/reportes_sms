@@ -17,5 +17,9 @@ public class InicioAplicacion implements ServletContextListener {
         } catch (ClassNotFoundException e) {
             throw new RuntimeException("El driver de MariaDB no está disponible", e);
         }
+
+        // Cambia en cada despliegue: se agrega al link de alertasms.css (?v=...) para que
+        // el navegador no siga usando la versión vieja que tenía guardada en caché
+        evento.getServletContext().setAttribute("versionEstilos", Long.toString(System.currentTimeMillis(), 36));
     }
 }
