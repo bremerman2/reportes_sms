@@ -231,7 +231,7 @@ public class ComunidadDAO {
     public List<ReporteComunidad> listarRecientes(String numero, List<String> estados, int desde, int cantidad) {
         List<ReporteComunidad> lista = new ArrayList<>();
         String digitos = soloDigitos(numero);
-        String sql = "SELECT r.id_reporte, r.fecha_hora, r.estado_reporte, nr.numero_telefono, pp.prefijo" +
+        String sql = "SELECT r.id_reporte, r.fecha_hora, r.cuerpo_sms, r.estado_reporte, nr.numero_telefono, pp.prefijo" +
                 FROM_RECIENTES + whereRecientes(digitos, estados) +
                 " ORDER BY r.fecha_hora DESC, r.id_reporte DESC LIMIT ? OFFSET ?";
         try (Connection con = ConexionDB.obtenerConexion(); PreparedStatement ps = con.prepareStatement(sql)) {
@@ -244,6 +244,7 @@ public class ComunidadDAO {
                     r.setIdReporte(rs.getInt("id_reporte"));
                     Timestamp fecha = rs.getTimestamp("fecha_hora");
                     r.setFechaHora(fecha == null ? null : fecha.toLocalDateTime());
+                    r.setCuerpoSms(rs.getString("cuerpo_sms"));
                     r.setEstado(rs.getString("estado_reporte"));
                     r.setNumeroTelefono(numeroConPrefijo(rs.getString("prefijo"), rs.getString("numero_telefono")));
                     lista.add(r);

@@ -62,6 +62,7 @@
                         <tr>
                             <th scope="col">Fecha <span class="as-flecha" aria-hidden="true">↓</span></th>
                             <th scope="col">Número reportado</th>
+                            <th scope="col">Mensaje</th>
                             <th scope="col">Estado</th>
                             <th scope="col">Acciones</th>
                         </tr>
@@ -71,6 +72,12 @@
                             <tr>
                                 <td class="as-col-fecha"><c:out value="${r.fechaTexto}" /></td>
                                 <td class="as-col-numero"><c:out value="${r.numeroTelefono}" /></td>
+                                <td class="as-col-mensaje">
+                                    <c:choose>
+                                        <c:when test="${fn:length(r.cuerpoSms) > 60}"><c:out value="${fn:substring(r.cuerpoSms, 0, 60)}" />…</c:when>
+                                        <c:otherwise><c:out value="${r.cuerpoSms}" /></c:otherwise>
+                                    </c:choose>
+                                </td>
                                 <td class="as-col-estado">
                                     <c:choose>
                                         <c:when test="${r.estado == 'confirmado'}"><span class="as-estado as-estado-confirmado">Confirmado</span></c:when>
