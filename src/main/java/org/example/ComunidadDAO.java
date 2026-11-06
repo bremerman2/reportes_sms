@@ -2,6 +2,7 @@ package org.example;
 
 import java.sql.*;
 import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -175,8 +176,8 @@ public class ComunidadDAO {
 
     private static final String FROM_RECIENTES =
             " FROM reporte r" +
-            " JOIN numero_reportado nr ON nr.id_num_reportado = r.id_num_reportado" +
-            " LEFT JOIN pais_prefijo pp ON pp.id_prefijo = nr.id_prefijo";
+                    " JOIN numero_reportado nr ON nr.id_num_reportado = r.id_num_reportado" +
+                    " LEFT JOIN pais_prefijo pp ON pp.id_prefijo = nr.id_prefijo";
 
     // Arma el WHERE según los filtros que vinieron. digitos = solo los números de la búsqueda.
     // estados: los estados elegidos (vacío = todos); con varios se arma un IN (?, ?, ...)
@@ -256,10 +257,11 @@ public class ComunidadDAO {
         return lista;
     }
 
-    // ---------- Listado de reportes de administración: búsqueda por número o texto del SMS, filtro por estado ----------
+    // ---------- Listado de reportes de administración: búsqueda, estado y fecha ----------
 
-    // estado: "pendiente" | "confirmado" | "falso_positivo" o "" para todos
-    private String whereAdmin(String texto, String digitos, String estado) {
+    // fechaDesde se incluye y fechaHasta no se incluye.
+    private String whereAdmin(String texto, String digitos, String estado,
+                              LocalDate fechaDesde, LocalDate fechaHasta) {
         StringBuilder where = new StringBuilder(" WHERE 1 = 1");
         if (!texto.isEmpty()) {
             where.append(" AND (LOWER(r.cuerpo_sms) LIKE LOWER(?)");
@@ -269,25 +271,33 @@ public class ComunidadDAO {
             where.append(")");
         }
         if (!estado.isEmpty()) where.append(" AND r.estado_reporte = ?");
+        if (fechaDesde != null) where.append(" AND r.fecha_hora >= ?");
+        if (fechaHasta != null) where.append(" AND r.fecha_hora < ?");
         return where.toString();
     }
 
-    private int cargarFiltrosAdmin(PreparedStatement ps, String texto, String digitos, String estado) throws SQLException {
+    private int cargarFiltrosAdmin(PreparedStatement ps, String texto, String digitos, String estado,
+                                   LocalDate fechaDesde, LocalDate fechaHasta) throws SQLException {
         int i = 1;
         if (!texto.isEmpty()) {
             ps.setString(i++, "%" + escaparLike(texto) + "%");
             if (!digitos.isEmpty()) ps.setString(i++, "%" + digitos + "%");
         }
         if (!estado.isEmpty()) ps.setString(i++, estado);
+        if (fechaDesde != null) ps.setTimestamp(i++, Timestamp.valueOf(fechaDesde.atStartOfDay()));
+        if (fechaHasta != null) ps.setTimestamp(i++, Timestamp.valueOf(fechaHasta.atStartOfDay()));
         return i;
     }
 
-    public int contarReportesAdmin(String busqueda, String estado) {
+    public int contarReportesAdmin(String busqueda, String estado,
+                                   LocalDate fechaDesde, LocalDate fechaHasta) {
         String texto = busqueda == null ? "" : busqueda.trim();
         String digitos = soloDigitos(texto).length() < 3 ? "" : soloDigitos(texto);
-        String sql = "SELECT COUNT(*)" + FROM_RECIENTES + whereAdmin(texto, digitos, estado);
-        try (Connection con = ConexionDB.obtenerConexion(); PreparedStatement ps = con.prepareStatement(sql)) {
-            cargarFiltrosAdmin(ps, texto, digitos, estado);
+        String sql = "SELECT COUNT(*)" + FROM_RECIENTES
+                + whereAdmin(texto, digitos, estado, fechaDesde, fechaHasta);
+        try (Connection con = ConexionDB.obtenerConexion();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            cargarFiltrosAdmin(ps, texto, digitos, estado, fechaDesde, fechaHasta);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) return rs.getInt(1);
             }
@@ -297,16 +307,20 @@ public class ComunidadDAO {
         return 0;
     }
 
-    public List<ReporteComunidad> listarReportesAdmin(String busqueda, String estado, int desde, int cantidad) {
+    public List<ReporteComunidad> listarReportesAdmin(String busqueda, String estado,
+                                                      LocalDate fechaDesde, LocalDate fechaHasta,
+                                                      int desde, int cantidad) {
         List<ReporteComunidad> lista = new ArrayList<>();
         String texto = busqueda == null ? "" : busqueda.trim();
         String digitos = soloDigitos(texto).length() < 3 ? "" : soloDigitos(texto);
-        String sql = "SELECT r.id_reporte, r.fecha_hora, r.cuerpo_sms, r.estado_reporte, r.id_usuario, u.nombre, u.apellido, " +
-                "nr.numero_telefono, nr.cantidad_reportes, pp.prefijo" +
-                FROM_RECIENTES + " JOIN usuario u ON u.id_usuario = r.id_usuario" + whereAdmin(texto, digitos, estado) +
-                " ORDER BY r.fecha_hora DESC, r.id_reporte DESC LIMIT ? OFFSET ?";
-        try (Connection con = ConexionDB.obtenerConexion(); PreparedStatement ps = con.prepareStatement(sql)) {
-            int i = cargarFiltrosAdmin(ps, texto, digitos, estado);
+        String sql = "SELECT r.id_reporte, r.fecha_hora, r.cuerpo_sms, r.estado_reporte, r.id_usuario, u.nombre, u.apellido, "
+                + "nr.numero_telefono, nr.cantidad_reportes, pp.prefijo"
+                + FROM_RECIENTES + " JOIN usuario u ON u.id_usuario = r.id_usuario"
+                + whereAdmin(texto, digitos, estado, fechaDesde, fechaHasta)
+                + " ORDER BY r.fecha_hora DESC, r.id_reporte DESC LIMIT ? OFFSET ?";
+        try (Connection con = ConexionDB.obtenerConexion();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            int i = cargarFiltrosAdmin(ps, texto, digitos, estado, fechaDesde, fechaHasta);
             ps.setInt(i++, cantidad);
             ps.setInt(i, desde);
             try (ResultSet rs = ps.executeQuery()) {
