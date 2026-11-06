@@ -14,20 +14,37 @@
     <a class="as-boton as-boton-primario" href="${ctx}/reportar">+ Reportar SMS</a>
 </div>
 
-<%-- Búsqueda por número o por texto del SMS --%>
+<%-- Búsqueda por número/texto y filtro por fecha --%>
 <form class="as-filtros" action="${ctx}/comunidad" method="get" role="search">
     <div class="as-campo as-campo-ancho">
         <label for="q">Buscar por número o texto del SMS</label>
         <input type="search" id="q" name="q" maxlength="100"
                placeholder="Ej.: 91 204 o cuenta bloqueada" value="<c:out value='${busqueda}' />">
     </div>
+    <div class="as-campo">
+        <label for="periodo">Filtrar por</label>
+        <select id="periodo" name="periodo">
+            <option value="dia" ${periodoFiltro == 'dia' ? 'selected' : ''}>Día</option>
+            <option value="semana" ${periodoFiltro == 'semana' ? 'selected' : ''}>Semana</option>
+            <option value="mes" ${periodoFiltro == 'mes' ? 'selected' : ''}>Mes</option>
+            <option value="anio" ${periodoFiltro == 'anio' ? 'selected' : ''}>Año</option>
+        </select>
+    </div>
+    <div class="as-campo">
+        <label for="fecha">Fecha de referencia</label>
+        <input type="date" id="fecha" name="fecha" value="<c:out value='${fechaFiltro}' />">
+    </div>
     <div class="as-filtros-acciones">
         <button class="as-boton as-boton-secundario" type="submit">Buscar</button>
-        <a class="as-link-rojo" href="${ctx}/comunidad">Limpiar</a>
+        <a class="as-boton as-boton-secundario" href="${ctx}/comunidad">Limpiar</a>
     </div>
 </form>
+<c:if test="${not empty errorFecha}"><p class="as-error"><c:out value="${errorFecha}" /></p></c:if>
+<c:if test="${not empty periodoTexto}">
+    <div class="as-resultados-cabecera"><strong><c:out value="${periodoTexto}" /></strong></div>
+</c:if>
 
-<c:if test="${not empty busqueda}">
+<c:if test="${not empty busqueda || not empty fechaFiltro}">
     <div class="as-resultados-cabecera">
         <strong>${totalRegistros} ${totalRegistros == 1 ? 'resultado' : 'resultados'} para “<c:out value="${busqueda}" />”</strong>
         <span>Orden: Fecha, más recientes primero</span>
@@ -37,7 +54,7 @@
 <c:if test="${empty reportesComunidad}">
     <div class="as-vacio">
         <c:choose>
-            <c:when test="${not empty busqueda}">
+            <c:when test="${not empty busqueda || not empty fechaFiltro}">
                 <h2>No hay reportes que coincidan</h2>
                 <p>Probá con otra palabra del mensaje o con parte del número, o tocá Limpiar para ver todos.</p>
             </c:when>
