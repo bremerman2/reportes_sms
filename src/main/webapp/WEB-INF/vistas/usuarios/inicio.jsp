@@ -26,14 +26,30 @@
                     <input type="search" id="numero" name="numero" inputmode="tel" maxlength="20"
                            placeholder="Ej.: 91 204" value="<c:out value='${filtroNumero}' />">
                 </div>
-                <%-- Los estados se eligen con los segmentos de abajo (se pueden marcar varios); al buscar se conservan --%>
+                <div class="as-campo">
+                    <label for="periodo">Filtrar por</label>
+                    <select id="periodo" name="periodo">
+                        <option value="dia" ${periodoFiltro == 'dia' ? 'selected' : ''}>Día</option>
+                        <option value="semana" ${periodoFiltro == 'semana' ? 'selected' : ''}>Semana</option>
+                        <option value="mes" ${periodoFiltro == 'mes' ? 'selected' : ''}>Mes</option>
+                        <option value="anio" ${periodoFiltro == 'anio' ? 'selected' : ''}>Año</option>
+                    </select>
+                </div>
+                <div class="as-campo">
+                    <label for="fecha">Fecha de referencia</label>
+                    <input type="date" id="fecha" name="fecha" value="<c:out value='${fechaFiltro}' />">
+                </div>
                 <c:forEach var="e" items="${estadosElegidos}"><input type="hidden" name="estado" value="${e}"></c:forEach>
                 <div class="as-filtros-acciones">
                     <button class="as-boton as-boton-secundario" type="submit">Buscar</button>
-                    <a class="as-link-rojo" href="${ctx}/inicio">Limpiar</a>
+                    <a class="as-boton as-boton-secundario" href="${ctx}/inicio">Limpiar</a>
                 </div>
                 <%@ include file="/WEB-INF/vistas/layout/filtro-estados.jspf" %>
             </form>
+            <c:if test="${not empty errorFecha}"><p class="as-error"><c:out value="${errorFecha}" /></p></c:if>
+            <c:if test="${not empty periodoTexto}">
+                <div class="as-resultados-cabecera"><strong><c:out value="${periodoTexto}" /></strong></div>
+            </c:if>
 
             <%-- 5 · Resultados --%>
             <div class="as-resultados-cabecera">
