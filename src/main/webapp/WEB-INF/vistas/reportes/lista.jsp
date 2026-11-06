@@ -14,27 +14,52 @@
     <a href="${ctx}/reportes?accion=nuevo" class="btn btn-primary">+ Registrar reporte</a>
 </div>
 
-<%-- Búsqueda por número o texto del SMS + filtro por estado --%>
-<form action="${ctx}/reportes" method="get" class="d-flex flex-wrap align-items-end gap-2 mb-3" role="search">
-    <div class="flex-grow-1" style="max-width: 420px;">
+<%-- Búsqueda por número/texto, estado y período de fechas --%>
+<form action="${ctx}/reportes" method="get"
+      class="d-flex flex-wrap align-items-end gap-2 mb-2" role="search">
+    <div class="flex-grow-1" style="max-width: 360px;">
         <label for="q" class="form-label fw-semibold mb-1">Buscar por número o texto del SMS</label>
         <input type="search" class="form-control" id="q" name="q" maxlength="100"
-               placeholder="Ej.: 91 204 o cuenta bloqueada" value="<c:out value='${busqueda}' />">
+               placeholder="Ej.: 91 204 o cuenta bloqueada"
+               value="<c:out value='${busqueda}' />">
     </div>
+
     <div>
         <label for="estado" class="form-label fw-semibold mb-1">Estado</label>
-        <select class="form-select" id="estado" name="estado" onchange="this.form.submit()">
+        <select class="form-select" id="estado" name="estado">
             <option value="">Todos</option>
             <c:forEach var="e" items="${estados}">
                 <option value="${e}" ${estadoFiltro == e.name() ? 'selected' : ''}>${e}</option>
             </c:forEach>
         </select>
     </div>
+
+    <div>
+        <label for="periodo" class="form-label fw-semibold mb-1">Filtrar por</label>
+        <select class="form-select" id="periodo" name="periodo">
+            <option value="dia" ${periodoFiltro == 'dia' ? 'selected' : ''}>Día</option>
+            <option value="semana" ${periodoFiltro == 'semana' ? 'selected' : ''}>Semana</option>
+            <option value="mes" ${periodoFiltro == 'mes' ? 'selected' : ''}>Mes</option>
+            <option value="anio" ${periodoFiltro == 'anio' ? 'selected' : ''}>Año</option>
+        </select>
+    </div>
+
+    <div>
+        <label for="fecha" class="form-label fw-semibold mb-1">Fecha de referencia</label>
+        <input type="date" class="form-control" id="fecha" name="fecha"
+               value="<c:out value='${fechaFiltro}' />">
+    </div>
+
     <button type="submit" class="btn btn-outline-primary">Buscar</button>
-    <c:if test="${not empty busqueda or not empty estadoFiltro}">
-        <a href="${ctx}/reportes" class="btn btn-link">Limpiar</a>
-    </c:if>
+    <a href="${ctx}/reportes" class="btn btn-outline-primary">Limpiar</a>
 </form>
+
+<div class="small text-body-secondary mb-3" aria-live="polite">
+    <c:out value="${descripcionPeriodo}" />
+    <c:if test="${not empty fechaFiltro}">
+        <span> El período se combina con los filtros de búsqueda y estado.</span>
+    </c:if>
+</div>
 
 <div class="card border-0 shadow-sm">
     <div class="card-body p-0">
