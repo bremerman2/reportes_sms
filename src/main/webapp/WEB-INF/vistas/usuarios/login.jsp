@@ -16,7 +16,10 @@
 <div class="as-app">
 
     <header class="as-encabezado">
-        <a class="as-marca" href="${ctx}/login-usuario">AlertaSMS<span>Mi cuenta</span></a>
+        <a class="as-marca" href="${ctx}/inicio" style="display: inline-flex; align-items: center; gap: 2px;">
+            <img src="https://res.cloudinary.com/umxpdr0z/image/upload/v1794002274/logo.j_1.png" alt="Logo" height="25" style="width: auto;">
+            AlertaSMS<span>Mi cuenta</span>
+        </a>
         <div class="as-sesion">
             <a class="as-link-rojo" href="${ctx}/registro-usuario">Crear cuenta</a>
         </div>

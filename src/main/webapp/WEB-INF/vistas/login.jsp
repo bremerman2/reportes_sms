@@ -20,8 +20,9 @@
 <div class="as-app">
 
     <header class="as-encabezado">
-        <a class="as-marca" href="${ctx}/login">AlertaSMS
-            <span>Administración</span>
+        <a class="as-marca" href="${ctx}/login" style="display: inline-flex; align-items: center; gap: 2px;">
+            <img src="https://res.cloudinary.com/umxpdr0z/image/upload/v1794002274/logo.j_1.png" alt="Logo" height="25" style="width: auto;">
+            AlertaSMS<span>Administración</span>
         </a>
 
         <div class="as-sesion">
