@@ -9,6 +9,12 @@ import java.util.List;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.time.LocalDate;
+import java.time.DateTimeException;
+import java.time.DayOfWeek;
+import java.time.temporal.TemporalAdjusters;
+import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 
 // Reemplaza "4. Gestion de Reportes" del menú de consola
 //   GET  /reportes                       -> listado + estadísticas
@@ -50,16 +56,88 @@ public class ReporteServlet extends HttpServlet {
             UtilWeb.mensajeError(request, "Estado inválido");
         }
 
-        // búsqueda por número o texto del SMS + estado, paginado en SQL
+        // Búsqueda por número o texto del SMS + filtro por estado.
         String busqueda = UtilWeb.texto(request, "q");
         if (busqueda.length() > 100) busqueda = busqueda.substring(0, 100);
+
         String estadoBD = estado == null ? "" : estado.name().toLowerCase();
         ComunidadDAO comunidadDAO = new ComunidadDAO();
-        int desde = Paginacion.calcular(request, comunidadDAO.contarReportesAdmin(busqueda, estadoBD), Paginacion.POR_PAGINA);
 
-        request.setAttribute("listaReportes", comunidadDAO.listarReportesAdmin(busqueda, estadoBD, desde, Paginacion.POR_PAGINA));
+        // Filtro por fecha: día, semana, mes o año.
+        String periodo = UtilWeb.texto(request, "periodo").toLowerCase();
+        if (!List.of("dia", "semana", "mes", "anio").contains(periodo)) {
+            periodo = "dia";
+        }
+
+        String fechaTexto = UtilWeb.texto(request, "fecha");
+        LocalDate fechaElegida = null;
+        LocalDate fechaDesde = null;
+        LocalDate fechaHasta = null;
+        String descripcionPeriodo = "Se están mostrando todos los reportes.";
+
+        if (!fechaTexto.isEmpty()) {
+            try {
+                fechaElegida = LocalDate.parse(fechaTexto);
+
+                switch (periodo) {
+                    case "semana" -> {
+                        fechaDesde = fechaElegida.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+                        fechaHasta = fechaDesde.plusWeeks(1);
+                    }
+                    case "mes" -> {
+                        fechaDesde = fechaElegida.withDayOfMonth(1);
+                        fechaHasta = fechaDesde.plusMonths(1);
+                    }
+                    case "anio" -> {
+                        fechaDesde = fechaElegida.withDayOfYear(1);
+                        fechaHasta = fechaDesde.plusYears(1);
+                    }
+                    default -> {
+                        periodo = "dia";
+                        fechaDesde = fechaElegida;
+                        fechaHasta = fechaElegida.plusDays(1);
+                    }
+                }
+
+                DateTimeFormatter formato = DateTimeFormatter.ofPattern("d 'de' MMMM 'de' yyyy", new Locale("es", "UY"));
+                DateTimeFormatter formatoMes = DateTimeFormatter.ofPattern("MMMM 'de' yyyy", new Locale("es", "UY"));
+
+                switch (periodo) {
+                    case "semana" -> {
+                        LocalDate ultimoDia = fechaHasta.minusDays(1);
+                        if (fechaDesde.getMonth() == ultimoDia.getMonth()
+                                && fechaDesde.getYear() == ultimoDia.getYear()) {
+                            descripcionPeriodo = "Mostrando reportes del "
+                                    + fechaDesde.getDayOfMonth() + " al "
+                                    + ultimoDia.format(formato) + ".";
+                        } else {
+                            descripcionPeriodo = "Mostrando reportes del "
+                                    + fechaDesde.format(formato) + " al "
+                                    + ultimoDia.format(formato) + ".";
+                        }
+                    }
+                    case "mes" -> descripcionPeriodo = "Mostrando reportes de " + fechaElegida.format(formatoMes) + ".";
+                    case "anio" -> descripcionPeriodo = "Mostrando reportes del año " + fechaElegida.getYear() + ".";
+                    default -> descripcionPeriodo = "Mostrando reportes del " + fechaElegida.format(formato) + ".";
+                }
+            } catch (DateTimeException e) {
+                fechaTexto = "";
+                fechaDesde = null;
+                fechaHasta = null;
+                UtilWeb.mensajeError(request, "La fecha seleccionada no es válida.");
+            }
+        }
+
+        int total = comunidadDAO.contarReportesAdmin(busqueda, estadoBD, fechaDesde, fechaHasta);
+        int desde = Paginacion.calcular(request, total, Paginacion.POR_PAGINA);
+
+        request.setAttribute("listaReportes", comunidadDAO.listarReportesAdmin(
+                busqueda, estadoBD, fechaDesde, fechaHasta, desde, Paginacion.POR_PAGINA));
         request.setAttribute("busqueda", busqueda);
         request.setAttribute("estadoFiltro", estado == null ? "" : estado.name());
+        request.setAttribute("periodoFiltro", periodo);
+        request.setAttribute("fechaFiltro", fechaTexto);
+        request.setAttribute("descripcionPeriodo", descripcionPeriodo);
         request.setAttribute("estados", estado_reporte.values());
         request.setAttribute("estadisticas", dao.consultarEstadisticas());
         request.getRequestDispatcher(LISTA).forward(request, response);
