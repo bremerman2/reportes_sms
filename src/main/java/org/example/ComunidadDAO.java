@@ -17,37 +17,47 @@ public class ComunidadDAO {
                     "JOIN numero_reportado nr ON nr.id_num_reportado = r.id_num_reportado " +
                     "LEFT JOIN pais_prefijo pp ON pp.id_prefijo = nr.id_prefijo";
 
-    // Sin búsqueda: trae todos los reportes
+    // Sin búsqueda ni fecha: trae todos los reportes.
     public List<ReporteComunidad> listarReportesComunidad() {
-        return listarReportesComunidad("");
+        return listarReportesComunidad("", null, null);
     }
 
-    // Con búsqueda: filtra por texto del SMS o por número (con o sin prefijo, con o sin espacios)
     public List<ReporteComunidad> listarReportesComunidad(String busqueda) {
+        return listarReportesComunidad(busqueda, null, null);
+    }
+
+    // Filtra por texto/número y por rango de fechas [desde, hasta).
+    public List<ReporteComunidad> listarReportesComunidad(String busqueda, LocalDate fechaDesde, LocalDate fechaHasta) {
         List<ReporteComunidad> lista = new ArrayList<>();
         String texto = busqueda == null ? "" : busqueda.trim();
         String digitos = soloDigitos(texto);
-        if (digitos.length() < 3) digitos = "";   // con menos de 3 dígitos coincidiría con casi todos los números
+        if (digitos.length() < 3) digitos = "";
 
         StringBuilder sql = new StringBuilder(SELECT_MURO);
+        boolean tieneWhere = false;
         if (!texto.isEmpty()) {
-            sql.append(" WHERE LOWER(r.cuerpo_sms) LIKE LOWER(?)");
-            if (!digitos.isEmpty()) {
-                sql.append(" OR REGEXP_REPLACE(CONCAT(COALESCE(pp.prefijo, ''), nr.numero_telefono), '[^0-9]', '') LIKE ?");
-            }
+            sql.append(" WHERE (LOWER(r.cuerpo_sms) LIKE LOWER(?)");
+            if (!digitos.isEmpty()) sql.append(" OR REGEXP_REPLACE(CONCAT(COALESCE(pp.prefijo, ''), nr.numero_telefono), '[^0-9]', '') LIKE ?");
+            sql.append(")");
+            tieneWhere = true;
         }
+        if (fechaDesde != null) {
+            sql.append(tieneWhere ? " AND" : " WHERE").append(" r.fecha_hora >= ?");
+            tieneWhere = true;
+        }
+        if (fechaHasta != null) sql.append(tieneWhere ? " AND" : " WHERE").append(" r.fecha_hora < ?");
         sql.append(" ORDER BY r.fecha_hora DESC, r.id_reporte DESC");
 
-        try (Connection con = ConexionDB.obtenerConexion();
-             PreparedStatement ps = con.prepareStatement(sql.toString())) {
+        try (Connection con = ConexionDB.obtenerConexion(); PreparedStatement ps = con.prepareStatement(sql.toString())) {
+            int i = 1;
             if (!texto.isEmpty()) {
-                ps.setString(1, "%" + escaparLike(texto) + "%");
-                if (!digitos.isEmpty()) ps.setString(2, "%" + digitos + "%");
+                ps.setString(i++, "%" + escaparLike(texto) + "%");
+                if (!digitos.isEmpty()) ps.setString(i++, "%" + digitos + "%");
             }
+            if (fechaDesde != null) ps.setTimestamp(i++, Timestamp.valueOf(fechaDesde.atStartOfDay()));
+            if (fechaHasta != null) ps.setTimestamp(i, Timestamp.valueOf(fechaHasta.atStartOfDay()));
             try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    lista.add(armarReporteMuro(rs));
-                }
+                while (rs.next()) lista.add(armarReporteMuro(rs));
             }
         } catch (SQLException e) {
             System.err.println("Error al listar el muro de reportes: " + e.getMessage());
@@ -181,24 +191,36 @@ public class ComunidadDAO {
 
     // Arma el WHERE según los filtros que vinieron. digitos = solo los números de la búsqueda.
     // estados: los estados elegidos (vacío = todos); con varios se arma un IN (?, ?, ...)
-    private String whereRecientes(String digitos, List<String> estados) {
+    private String whereRecientes(String digitos, List<String> estados, LocalDate fechaDesde, LocalDate fechaHasta) {
         StringBuilder where = new StringBuilder(" WHERE 1 = 1");
         if (!digitos.isEmpty()) {
-            // Se compara sin espacios, guiones ni "+" (prefijo + número), así "91 204" encuentra "+598 91 204 773"
             where.append(" AND REGEXP_REPLACE(CONCAT(COALESCE(pp.prefijo, ''), nr.numero_telefono), '[^0-9]', '') LIKE ?");
         }
         if (!estados.isEmpty()) {
             where.append(" AND r.estado_reporte IN (").append(String.join(", ", Collections.nCopies(estados.size(), "?"))).append(")");
         }
+        if (fechaDesde != null) where.append(" AND r.fecha_hora >= ?");
+        if (fechaHasta != null) where.append(" AND r.fecha_hora < ?");
         return where.toString();
     }
 
-    // Carga los parámetros del WHERE y devuelve el índice del próximo "?"
-    private int cargarFiltros(PreparedStatement ps, String digitos, List<String> estados) throws SQLException {
+    private int cargarFiltros(PreparedStatement ps, String digitos, List<String> estados,
+                              LocalDate fechaDesde, LocalDate fechaHasta) throws SQLException {
         int i = 1;
         if (!digitos.isEmpty()) ps.setString(i++, "%" + digitos + "%");
         for (String estado : estados) ps.setString(i++, estado);
+        if (fechaDesde != null) ps.setTimestamp(i++, Timestamp.valueOf(fechaDesde.atStartOfDay()));
+        if (fechaHasta != null) ps.setTimestamp(i++, Timestamp.valueOf(fechaHasta.atStartOfDay()));
         return i;
+    }
+
+    // Compatibilidad con consultas existentes que no utilizan filtro de fecha.
+    private String whereRecientes(String digitos, List<String> estados) {
+        return whereRecientes(digitos, estados, null, null);
+    }
+
+    private int cargarFiltros(PreparedStatement ps, String digitos, List<String> estados) throws SQLException {
+        return cargarFiltros(ps, digitos, estados, null, null);
     }
 
     // "" -> ningún filtro de estado; "pendiente" -> solo ese
@@ -216,13 +238,15 @@ public class ComunidadDAO {
     }
 
     public int contarRecientes(String numero, List<String> estados) {
+        return contarRecientes(numero, estados, null, null);
+    }
+
+    public int contarRecientes(String numero, List<String> estados, LocalDate fechaDesde, LocalDate fechaHasta) {
         String digitos = soloDigitos(numero);
-        String sql = "SELECT COUNT(*)" + FROM_RECIENTES + whereRecientes(digitos, estados);
+        String sql = "SELECT COUNT(*)" + FROM_RECIENTES + whereRecientes(digitos, estados, fechaDesde, fechaHasta);
         try (Connection con = ConexionDB.obtenerConexion(); PreparedStatement ps = con.prepareStatement(sql)) {
-            cargarFiltros(ps, digitos, estados);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) return rs.getInt(1);
-            }
+            cargarFiltros(ps, digitos, estados, fechaDesde, fechaHasta);
+            try (ResultSet rs = ps.executeQuery()) { if (rs.next()) return rs.getInt(1); }
         } catch (SQLException e) {
             System.err.println("Error al contar reportes recientes: " + e.getMessage());
         }
@@ -230,13 +254,19 @@ public class ComunidadDAO {
     }
 
     public List<ReporteComunidad> listarRecientes(String numero, List<String> estados, int desde, int cantidad) {
+        return listarRecientes(numero, estados, null, null, desde, cantidad);
+    }
+
+    public List<ReporteComunidad> listarRecientes(String numero, List<String> estados,
+                                                   LocalDate fechaDesde, LocalDate fechaHasta,
+                                                   int desde, int cantidad) {
         List<ReporteComunidad> lista = new ArrayList<>();
         String digitos = soloDigitos(numero);
         String sql = "SELECT r.id_reporte, r.fecha_hora, r.cuerpo_sms, r.estado_reporte, nr.numero_telefono, pp.prefijo" +
-                FROM_RECIENTES + whereRecientes(digitos, estados) +
+                FROM_RECIENTES + whereRecientes(digitos, estados, fechaDesde, fechaHasta) +
                 " ORDER BY r.fecha_hora DESC, r.id_reporte DESC LIMIT ? OFFSET ?";
         try (Connection con = ConexionDB.obtenerConexion(); PreparedStatement ps = con.prepareStatement(sql)) {
-            int i = cargarFiltros(ps, digitos, estados);
+            int i = cargarFiltros(ps, digitos, estados, fechaDesde, fechaHasta);
             ps.setInt(i++, cantidad);
             ps.setInt(i, desde);
             try (ResultSet rs = ps.executeQuery()) {
@@ -308,8 +338,8 @@ public class ComunidadDAO {
     }
 
     public List<ReporteComunidad> listarReportesAdmin(String busqueda, String estado,
-                                                      LocalDate fechaDesde, LocalDate fechaHasta,
-                                                      int desde, int cantidad) {
+                                                       LocalDate fechaDesde, LocalDate fechaHasta,
+                                                       int desde, int cantidad) {
         List<ReporteComunidad> lista = new ArrayList<>();
         String texto = busqueda == null ? "" : busqueda.trim();
         String digitos = soloDigitos(texto).length() < 3 ? "" : soloDigitos(texto);
