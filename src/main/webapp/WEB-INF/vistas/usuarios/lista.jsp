@@ -6,8 +6,7 @@
 
 <%@ include file="/WEB-INF/vistas/layout/admin-inicio.jspf" %>
 
-<h1 class="h3 fw-bold mb-1">Usuarios</h1>
-<p class="text-body-secondary mb-4">Usuarios registrados en la aplicación.</p>
+<h1 class="h3 fw-bold mb-4">Usuarios</h1>
 
 <%-- Estadísticas de usuarios --%>
 <div class="row g-3 mb-4">

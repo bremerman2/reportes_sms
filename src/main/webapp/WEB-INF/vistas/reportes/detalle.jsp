@@ -6,16 +6,13 @@
 
 <%@ include file="/WEB-INF/vistas/layout/admin-inicio.jspf" %>
 
-<c:url var="urlListado" value="/reportes">
-    <c:if test="${not empty estadoFiltro}"><c:param name="estado" value="${estadoFiltro}" /></c:if>
-</c:url>
+<%-- urlListado lo arma ReporteServlet con el estado, período y fecha con que se venía filtrando --%>
 
 <div class="as-detalle">
 
-    <%-- Encabezado: ruta, título y estado --%>
+    <%-- Encabezado: título y estado --%>
     <div class="as-detalle-cabecera">
         <div>
-            <p class="as-detalle-ruta"><a href="${urlListado}">Reportes SMS</a> / Detalle</p>
             <h1 class="as-detalle-titulo">Reporte #${reporte.idReporte}</h1>
         </div>
         <c:choose>
@@ -34,7 +31,7 @@
             <dl class="as-detalle-datos">
                 <dt>Número reportado</dt>
                 <%-- El número y la pastilla llevan al listado de reportes filtrado por ese número --%>
-                <c:url var="urlMismoNumero" value="/reportes"><c:param name="q" value="${reporte.numeroTelefono}" /></c:url>
+                <c:url var="urlMismoNumero" value="/reportes"><c:param name="q" value="${reporte.numeroTelefono}" /><c:param name="fecha" value="" /></c:url>
                 <dd class="as-detalle-numero">
                     <a class="as-link-numero" href="${urlMismoNumero}" title="Ver todos los reportes de este número"><c:out value="${reporte.numeroTelefono}" /></a>
                     <a class="as-pastilla as-pastilla-roja as-pastilla-link" href="${urlMismoNumero}">${reporte.cantidadReportesNumero} ${reporte.cantidadReportesNumero == 1 ? 'reporte' : 'reportes'}</a>
@@ -109,6 +106,10 @@
                     <input type="hidden" name="id" value="${reporte.idReporte}">
                     <input type="hidden" name="origen" value="detalle">
                     <input type="hidden" name="estadoFiltro" value="<c:out value='${estadoFiltro}' />">
+                    <c:if test="${fechaFiltro != null}">
+                        <input type="hidden" name="periodoFiltro" value="<c:out value='${periodoFiltro}' />">
+                        <input type="hidden" name="fechaFiltro" value="<c:out value='${fechaFiltro}' />">
+                    </c:if>
                     <button type="submit" class="btn btn-outline-secondary">Marcar falso positivo</button>
                 </form>
                 <c:if test="${reporte.estado == 'pendiente'}">
@@ -117,6 +118,10 @@
                         <input type="hidden" name="id" value="${reporte.idReporte}">
                         <input type="hidden" name="origen" value="detalle">
                         <input type="hidden" name="estadoFiltro" value="<c:out value='${estadoFiltro}' />">
+                        <c:if test="${fechaFiltro != null}">
+                            <input type="hidden" name="periodoFiltro" value="<c:out value='${periodoFiltro}' />">
+                            <input type="hidden" name="fechaFiltro" value="<c:out value='${fechaFiltro}' />">
+                        </c:if>
                         <button type="submit" class="btn btn-primary">Confirmar reporte</button>
                     </form>
                 </c:if>

@@ -6,7 +6,6 @@
 <c:set var="menuActivo" value="notificaciones" />
 <%@ include file="/WEB-INF/vistas/layout/usuario-inicio.jspf" %>
 
-<p class="as-ruta"><a href="${ctx}/inicio">Inicio</a><span class="as-sep">/</span>Notificaciones</p>
 
 <div class="as-titulo">
     <div>

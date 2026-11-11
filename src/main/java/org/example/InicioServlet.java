@@ -36,7 +36,7 @@ public class InicioServlet extends HttpServlet {
         }
         ReportesDAO reportesDAO = new ReportesDAO();
         request.setAttribute("reportesHoy", reportesDAO.contarReportesHoy());
-        request.setAttribute("reportesPendientes", reportesDAO.contarReportesPendientes());
+        request.setAttribute("reportesPendientes", reportesDAO.contarReportesPendientesSemana());
         request.setAttribute("estadisticas", reportesDAO.consultarEstadisticas());
         request.getRequestDispatcher("/WEB-INF/vistas/inicio.jsp").forward(request, response);
     }
@@ -51,7 +51,10 @@ public class InicioServlet extends HttpServlet {
         if (estados.size() == ESTADOS.size()) estados = List.of();
 
         String periodo = periodoValido(UtilWeb.texto(request, "periodo"));
-        String fechaTexto = UtilWeb.texto(request, "fecha");
+        // Al entrar sin parámetro "fecha" se filtra por el día de hoy; "fecha=" vacío (Limpiar) muestra todos
+        String fechaTexto = request.getParameter("fecha") == null
+                ? LocalDate.now().toString()
+                : UtilWeb.texto(request, "fecha");
         LocalDate fechaDesde = null;
         LocalDate fechaHasta = null;
         String periodoTexto = "";
@@ -136,6 +139,9 @@ public class InicioServlet extends HttpServlet {
         if (fecha != null && !fecha.isBlank()) {
             url.append(separador).append("periodo=").append(periodo);
             url.append("&fecha=").append(URLEncoder.encode(fecha, StandardCharsets.UTF_8));
+        } else {
+            // Sin fecha explícita se volvería a aplicar el día de hoy por defecto
+            url.append(separador).append("fecha=");
         }
         return url.toString();
     }

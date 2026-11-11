@@ -46,7 +46,8 @@ public final class Paginacion {
         for (Map.Entry<String, String[]> parametro : request.getParameterMap().entrySet()) {
             if (parametro.getKey().equals("pagina")) continue;
             for (String valor : parametro.getValue()) {
-                if (valor.isBlank()) continue;
+                // "fecha=" vacío se conserva: en el inicio significa "sin filtro de fecha" (si falta, se usa hoy)
+                if (valor.isBlank() && !parametro.getKey().equals("fecha")) continue;
                 url.append(codificar(parametro.getKey())).append('=').append(codificar(valor)).append('&');
             }
         }

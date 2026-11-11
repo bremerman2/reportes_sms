@@ -5,7 +5,6 @@
 <c:set var="menuActivo" value="misReportes" />
 <%@ include file="/WEB-INF/vistas/layout/usuario-inicio.jspf" %>
 
-            <p class="as-ruta"><a href="${ctx}/inicio">Inicio</a> / Mis reportes</p>
 
             <div class="as-titulo">
                 <div>

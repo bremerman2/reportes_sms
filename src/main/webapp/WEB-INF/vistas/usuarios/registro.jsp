@@ -1,27 +1,79 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
-<c:set var="tituloPagina" value="Crear cuenta" />
-<%@ include file="/WEB-INF/vistas/layout/header.jspf" %>
+<c:set var="ctx" value="${pageContext.request.contextPath}" />
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Crear cuenta · AlertaSMS</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="${ctx}/estilos/alertasms.css?v=${applicationScope.versionEstilos}">
+</head>
+<body>
+<div class="as-app">
 
-<div class="row justify-content-center mt-3">
-  <div class="col-12 col-md-8 col-lg-6">
-    <h1 class="h3 fw-bold text-center">Crear cuenta</h1>
-    <p class="text-body-secondary text-center mb-4">Registrate para utilizar Reportes SMS.</p>
-    <div class="card border-0 shadow-sm"><div class="card-body p-4">
-      <c:if test="${not empty error}"><div class="alert alert-danger"><c:out value="${error}"/></div></c:if>
-      <form action="${pageContext.request.contextPath}/registro-usuario" method="post">
-        <div class="row">
-          <div class="col-md-6 mb-3"><label for="nombre" class="form-label">Nombre</label><input class="form-control" id="nombre" name="nombre" value="<c:out value='${nombre}'/>" maxlength="100" required></div>
-          <div class="col-md-6 mb-3"><label for="apellido" class="form-label">Apellido</label><input class="form-control" id="apellido" name="apellido" value="<c:out value='${apellido}'/>" maxlength="100" required></div>
+    <header class="as-encabezado">
+        <a class="as-marca" href="${ctx}/inicio" style="display: inline-flex; align-items: center; gap: 2px;">
+            <img src="https://res.cloudinary.com/umxpdr0z/image/upload/v1794002274/logo.j_1.png" alt="Logo" height="25" style="width: auto;">
+            AlertaSMS<span>Mi cuenta</span>
+        </a>
+        <div class="as-sesion">
+            <a class="as-link-rojo" href="${ctx}/login-usuario">Ingresar</a>
         </div>
-        <div class="mb-3"><label for="telefono" class="form-label">Teléfono</label><input class="form-control" id="telefono" name="telefono" type="tel" value="<c:out value='${telefono}'/>" maxlength="30" autocomplete="tel" required></div>
-        <div class="mb-3"><label for="email" class="form-label">Email</label><input class="form-control" id="email" name="email" type="email" value="<c:out value='${email}'/>" maxlength="254" autocomplete="email" required></div>
-        <div class="mb-3"><label for="password" class="form-label">Contraseña</label><input class="form-control" id="password" name="password" type="password" minlength="8" autocomplete="new-password" required><div class="form-text">Debe tener al menos 8 caracteres.</div></div>
-        <div class="mb-4"><label for="confirmarPassword" class="form-label">Confirmar contraseña</label><input class="form-control" id="confirmarPassword" name="confirmarPassword" type="password" minlength="8" autocomplete="new-password" required></div>
-        <button class="btn btn-primary w-100" type="submit">Crear cuenta</button>
-      </form>
-      <hr><p class="mb-0 text-center">¿Ya tenés cuenta? <a href="${pageContext.request.contextPath}/login-usuario">Iniciá sesión</a></p>
-    </div></div>
-  </div>
+    </header>
+
+    <main class="as-login">
+        <div class="as-login-caja as-login-caja-ancha">
+            <h1>Crear cuenta</h1>
+            <p class="as-descripcion">Registrate para reportar SMS sospechosos y seguir el estado de tus reportes.</p>
+
+            <c:if test="${not empty error}">
+                <div class="as-aviso as-aviso-error" role="alert"><c:out value="${error}" /></div>
+            </c:if>
+
+            <form class="as-login-form" action="${ctx}/registro-usuario" method="post">
+                <div class="as-grilla">
+                    <div class="as-campo">
+                        <label for="nombre">Nombre <span class="as-obligatorio">*</span></label>
+                        <input type="text" id="nombre" name="nombre" value="<c:out value='${nombre}' />"
+                               maxlength="100" autocomplete="given-name" required autofocus>
+                    </div>
+                    <div class="as-campo">
+                        <label for="apellido">Apellido <span class="as-obligatorio">*</span></label>
+                        <input type="text" id="apellido" name="apellido" value="<c:out value='${apellido}' />"
+                               maxlength="100" autocomplete="family-name" required>
+                    </div>
+                </div>
+                <div class="as-campo">
+                    <label for="telefono">Teléfono <span class="as-obligatorio">*</span></label>
+                    <input type="tel" id="telefono" name="telefono" value="<c:out value='${telefono}' />"
+                           maxlength="30" autocomplete="tel" required>
+                </div>
+                <div class="as-campo">
+                    <label for="email">Email <span class="as-obligatorio">*</span></label>
+                    <input type="email" id="email" name="email" value="<c:out value='${email}' />"
+                           maxlength="254" autocomplete="email" required>
+                </div>
+                <div class="as-campo">
+                    <label for="password">Contraseña <span class="as-obligatorio">*</span></label>
+                    <input type="password" id="password" name="password" minlength="8"
+                           autocomplete="new-password" aria-describedby="ayudaPassword" required>
+                    <p id="ayudaPassword" class="as-ayuda">Debe tener al menos 8 caracteres.</p>
+                </div>
+                <div class="as-campo">
+                    <label for="confirmarPassword">Confirmar contraseña <span class="as-obligatorio">*</span></label>
+                    <input type="password" id="confirmarPassword" name="confirmarPassword" minlength="8"
+                           autocomplete="new-password" required>
+                </div>
+                <button class="as-boton as-boton-primario" type="submit">Crear cuenta</button>
+            </form>
+
+            <p class="as-login-pie">¿Ya tenés cuenta? <a href="${ctx}/login-usuario">Iniciá sesión</a></p>
+        </div>
+    </main>
 </div>
-<%@ include file="/WEB-INF/vistas/layout/footer.jspf" %>
+</body>
+</html>

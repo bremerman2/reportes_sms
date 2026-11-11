@@ -8,8 +8,7 @@
 
 <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
     <div>
-        <h1 class="h3 fw-bold mb-1">Reportes</h1>
-        <p class="text-body-secondary mb-0">Reportes de SMS sospechosos enviados por los usuarios.</p>
+        <h1 class="h3 fw-bold mb-0">Reportes</h1>
     </div>
     <a href="${ctx}/reportes?accion=nuevo" class="btn btn-primary">+ Registrar reporte</a>
 </div>
@@ -51,7 +50,7 @@
     </div>
 
     <button type="submit" class="btn btn-outline-primary">Buscar</button>
-    <a href="${ctx}/reportes" class="btn btn-outline-primary">Limpiar</a>
+    <a href="${ctx}/reportes?fecha=" class="btn btn-outline-primary">Limpiar</a>
 </form>
 
 <div class="small text-body-secondary mb-3" aria-live="polite">
@@ -81,6 +80,8 @@
                         <c:param name="accion" value="ver" />
                         <c:param name="id" value="${r.idReporte}" />
                         <c:if test="${not empty estadoFiltro}"><c:param name="estadoFiltro" value="${estadoFiltro}" /></c:if>
+                        <c:param name="periodoFiltro" value="${periodoFiltro}" />
+                        <c:param name="fechaFiltro" value="${fechaFiltro}" />
                     </c:url>
                     <tr>
                         <td class="ps-4 as-celda-titulo">
@@ -89,7 +90,7 @@
                         </td>
                         <td data-label="Número">
                             <span class="text-nowrap"><c:out value="${r.numeroTelefono}" /></span>
-                            <c:url var="urlMismoNumero" value="/reportes"><c:param name="q" value="${r.numeroTelefono}" /></c:url>
+                            <c:url var="urlMismoNumero" value="/reportes"><c:param name="q" value="${r.numeroTelefono}" /><c:param name="fecha" value="" /></c:url>
                             <div class="small"><a class="text-body-secondary" href="${urlMismoNumero}" title="Ver todos los reportes de este número">${r.cantidadReportesNumero} ${r.cantidadReportesNumero == 1 ? 'reporte' : 'reportes'}</a></div>
                         </td>
                         <td data-label="Reportado por">
@@ -113,6 +114,8 @@
                                         <input type="hidden" name="accion" value="confirmar">
                                         <input type="hidden" name="id" value="${r.idReporte}">
                                         <input type="hidden" name="estadoFiltro" value="${estadoFiltro}">
+                                        <input type="hidden" name="periodoFiltro" value="<c:out value='${periodoFiltro}' />">
+                                        <input type="hidden" name="fechaFiltro" value="<c:out value='${fechaFiltro}' />">
                                         <button type="submit" class="btn btn-outline-danger btn-sm w-100">Confirmar</button>
                                     </form>
                                 </c:if>
@@ -121,6 +124,8 @@
                                         <input type="hidden" name="accion" value="falso-positivo">
                                         <input type="hidden" name="id" value="${r.idReporte}">
                                         <input type="hidden" name="estadoFiltro" value="${estadoFiltro}">
+                                        <input type="hidden" name="periodoFiltro" value="<c:out value='${periodoFiltro}' />">
+                                        <input type="hidden" name="fechaFiltro" value="<c:out value='${fechaFiltro}' />">
                                         <button type="submit" class="btn btn-outline-secondary btn-sm w-100 text-nowrap">Falso positivo</button>
                                     </form>
                                 </c:if>

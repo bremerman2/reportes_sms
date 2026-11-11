@@ -8,6 +8,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.util.List;
 
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.LocalDate;
 import java.time.DateTimeException;
@@ -69,7 +71,10 @@ public class ReporteServlet extends HttpServlet {
             periodo = "dia";
         }
 
-        String fechaTexto = UtilWeb.texto(request, "fecha");
+        // Al entrar sin parámetro "fecha" se usa hoy; "fecha=" vacío (Limpiar) muestra todos
+        String fechaTexto = request.getParameter("fecha") == null
+                ? LocalDate.now().toString()
+                : UtilWeb.texto(request, "fecha");
         LocalDate fechaElegida = null;
         LocalDate fechaDesde = null;
         LocalDate fechaHasta = null;
@@ -152,8 +157,14 @@ public class ReporteServlet extends HttpServlet {
             volverAlListado(request, response);
             return;
         }
+        String estadoFiltro = UtilWeb.texto(request, "estadoFiltro");
+        String periodoFiltro = UtilWeb.texto(request, "periodoFiltro");
+        String fechaFiltro = request.getParameter("fechaFiltro") == null ? null : UtilWeb.texto(request, "fechaFiltro");
         request.setAttribute("reporte", reporte);
-        request.setAttribute("estadoFiltro", UtilWeb.texto(request, "estadoFiltro"));
+        request.setAttribute("estadoFiltro", estadoFiltro);
+        request.setAttribute("periodoFiltro", periodoFiltro);
+        if (fechaFiltro != null) request.setAttribute("fechaFiltro", fechaFiltro);
+        request.setAttribute("urlListado", urlListado(request, estadoFiltro, periodoFiltro, fechaFiltro));
         request.getRequestDispatcher(DETALLE).forward(request, response);
     }
 
@@ -241,14 +252,42 @@ public class ReporteServlet extends HttpServlet {
     //(o al detalle, si la acción se hizo desde la página del reporte)
     private void volverAlListado(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String estado = UtilWeb.texto(request, "estadoFiltro");
+        String periodo = UtilWeb.texto(request, "periodoFiltro");
+        String fecha = request.getParameter("fechaFiltro") == null ? null : UtilWeb.texto(request, "fechaFiltro");
         Integer id = UtilWeb.entero(request, "id");
         if (id != null && "detalle".equals(UtilWeb.texto(request, "origen"))) {
-            response.sendRedirect(request.getContextPath() + "/reportes?accion=ver&id=" + id
-                    + (estado.isEmpty() ? "" : "&estadoFiltro=" + estado));
+            StringBuilder url = new StringBuilder(request.getContextPath() + "/reportes?accion=ver&id=" + id);
+            if (!estado.isEmpty()) url.append("&estadoFiltro=").append(codificar(estado));
+            if (fecha != null) {
+                url.append("&periodoFiltro=").append(codificar(periodo));
+                url.append("&fechaFiltro=").append(codificar(fecha));
+            }
+            response.sendRedirect(url.toString());
             return;
         }
-        String url = request.getContextPath() + "/reportes" + (estado.isEmpty() ? "" : "?estado=" + estado);
-        response.sendRedirect(url);
+        response.sendRedirect(urlListado(request, estado, periodo, fecha));
+    }
+
+    // URL del listado con los filtros que tenía; si fecha es null, el listado vuelve a usar hoy por defecto
+    private String urlListado(HttpServletRequest request, String estado, String periodo, String fecha) {
+        StringBuilder url = new StringBuilder(request.getContextPath() + "/reportes");
+        String separador = "?";
+        if (!estado.isEmpty()) {
+            url.append(separador).append("estado=").append(codificar(estado));
+            separador = "&";
+        }
+        if (fecha != null) {
+            if (!periodo.isEmpty()) {
+                url.append(separador).append("periodo=").append(codificar(periodo));
+                separador = "&";
+            }
+            url.append(separador).append("fecha=").append(codificar(fecha));
+        }
+        return url.toString();
+    }
+
+    private static String codificar(String valor) {
+        return URLEncoder.encode(valor, StandardCharsets.UTF_8);
     }
 
     private void notificarSuscriptores(HttpServletRequest request, int idReporte, String mensaje) {

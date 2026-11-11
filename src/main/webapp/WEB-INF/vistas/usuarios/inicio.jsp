@@ -9,7 +9,6 @@
             <div class="as-titulo">
                 <div>
                     <h1>Inicio</h1>
-                    <p class="as-descripcion">Reportes recientes de toda la comunidad. No se muestra quién reportó cada uno.</p>
                 </div>
                                 <div class="as-titulo-acciones">
                                     <a class="as-boton as-boton-primario" href="${ctx}/reportar">+ Reportar SMS</a>
@@ -48,7 +47,7 @@
 
                 <div class="as-filtros-acciones">
                     <button class="as-boton as-boton-secundario" type="submit">Buscar</button>
-                    <a class="as-boton as-boton-secundario" href="${ctx}/inicio">Limpiar</a>
+                    <a class="as-boton as-boton-secundario" href="${ctx}/inicio?fecha=">Limpiar</a>
                 </div>
 
                 <%@ include file="/WEB-INF/vistas/layout/filtro-estados.jspf" %>

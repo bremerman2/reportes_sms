@@ -8,8 +8,7 @@
 
 <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
     <div>
-        <h1 class="h3 fw-bold mb-1">Prefijos</h1>
-        <p class="text-body-secondary mb-0">Prefijos telefónicos registrados por país.</p>
+        <h1 class="h3 fw-bold mb-0">Prefijos</h1>
     </div>
     <a href="${ctx}/prefijos?accion=nuevo" class="btn btn-primary">+ Nuevo prefijo</a>
 </div>

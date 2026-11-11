@@ -8,8 +8,7 @@
 
 <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
     <div>
-        <h1 class="h3 fw-bold mb-1">Números oficiales</h1>
-        <p class="text-body-secondary mb-0">Números de entidades oficiales registrados.</p>
+        <h1 class="h3 fw-bold mb-0">Números oficiales</h1>
     </div>
     <a href="${ctx}/numeros-oficiales?accion=nuevo" class="btn btn-primary">+ Nuevo número oficial</a>
 </div>

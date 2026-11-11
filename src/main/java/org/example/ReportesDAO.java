@@ -5,7 +5,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -192,14 +195,17 @@ public class ReportesDAO {
         return 0;
     }
 
-    //cantidad de reportes pendientes
-    public int contarReportesPendientes() {
-        String query = "SELECT COUNT(*) FROM reporte WHERE estado_reporte = ?";
+    //cantidad de reportes pendientes de la semana actual (lunes a domingo, igual que el filtro "Semana")
+    public int contarReportesPendientesSemana() {
+        String query = "SELECT COUNT(*) FROM reporte WHERE estado_reporte = ? AND fecha_hora >= ? AND fecha_hora < ?";
+        LocalDate lunes = LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
 
         try (Connection conexion = ConexionDB.obtenerConexion();
              PreparedStatement sentencia = conexion.prepareStatement(query)) {
 
             sentencia.setString(1, estado_reporte.PENDIENTE.name().toLowerCase());
+            sentencia.setTimestamp(2, Timestamp.valueOf(lunes.atStartOfDay()));
+            sentencia.setTimestamp(3, Timestamp.valueOf(lunes.plusWeeks(1).atStartOfDay()));
 
             try (ResultSet rs = sentencia.executeQuery()) {
                 if (rs.next()) {

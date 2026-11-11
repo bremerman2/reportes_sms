@@ -6,17 +6,14 @@
 
 <%@ include file="/WEB-INF/vistas/layout/admin-inicio.jspf" %>
 
-<h1 class="h3 fw-bold mb-1">Sistema de gestión</h1>
-<p class="text-body-secondary mb-4">Panel de administración con datos actuales y accesos directos.</p>
+<h1 class="h3 fw-bold mb-4">Sistema de gestión</h1>
 
 <div class="row g-3 mb-4">
     <div class="col-12 col-md-6">
         <div class="card border-0 shadow-sm border-start border-primary border-4 h-100">
             <div class="card-body">
                 <span class="text-uppercase fw-bold text-muted small">Reportes de hoy</span>
-                <h2 class="display-5 fw-bold text-primary my-1"><c:out value="${reportesHoy}" default="0" /></h2>
-                <p class="text-body-secondary small mb-0">Nuevos avisos ingresados en la fecha actual.</p>
-            </div>
+                <h2 class="display-5 fw-bold text-primary my-1"><c:out value="${reportesHoy}" default="0" /></h2>            </div>
         </div>
     </div>
 
@@ -24,12 +21,11 @@
         <div class="card border-0 shadow-sm border-start border-warning border-4 h-100">
             <div class="card-body d-flex flex-column justify-content-between">
                 <div>
-                    <span class="text-uppercase fw-bold text-muted small">Sin confirmar (Pendientes)</span>
-                    <h2 class="display-5 fw-bold text-warning my-1"><c:out value="${reportesPendientes}" default="0" /></h2>
-                    <p class="text-body-secondary small mb-0">Reportes pendientes.</p>
-                </div>
+                    <span class="text-uppercase fw-bold text-muted small">Pendientes de esta semana</span>
+                    <h2 class="display-5 fw-bold text-warning my-1"><c:out value="${reportesPendientes}" default="0" /></h2>                </div>
                 <div class="mt-2">
-                    <a href="${ctx}/reportes?estado=PENDIENTE" class="btn btn-sm btn-outline-warning text-dark fw-semibold">
+                    <%-- Sin "fecha" el listado toma hoy como referencia, así que muestra la semana actual --%>
+                    <a href="${ctx}/reportes?estado=PENDIENTE&amp;periodo=semana" class="btn btn-sm btn-outline-warning text-dark fw-semibold">
                         Revisar pendientes &rarr;
                     </a>
                 </div>

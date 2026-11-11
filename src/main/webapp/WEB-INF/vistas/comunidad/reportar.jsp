@@ -4,7 +4,6 @@
 <c:set var="menuActivo" value="reportar" />
 <%@ include file="/WEB-INF/vistas/layout/usuario-inicio.jspf" %>
 
-<p class="as-ruta"><a href="${ctx}/inicio">Inicio</a><span class="as-sep">/</span>Reportar SMS</p>
 
 <div class="as-titulo">
     <div>

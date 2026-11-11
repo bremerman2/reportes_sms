@@ -702,6 +702,12 @@ a { color: inherit; }
     max-width: 420px;
 }
 
+.as-login-caja-ancha { max-width: 520px; }
+
+.as-login-form .as-grilla { gap: 16px; }
+.as-login-form .as-grilla .as-campo { min-width: 0; }
+.as-login-form .as-campo input { width: 100%; box-sizing: border-box; }
+
 .as-login-caja h1 {
     margin: 0 0 4px;
     font-size: 28px;

@@ -15,7 +15,6 @@
 
     <%-- ===================== Consulta ===================== --%>
     <c:when test="${not modoEdicion}">
-        <p class="as-ruta"><a href="${ctx}/inicio">Inicio</a><span class="as-sep">/</span>Mis datos</p>
 
         <span class="as-chip">Activa</span>
         <div class="as-titulo">
@@ -51,9 +50,6 @@
 
     <%-- ===================== Edición ===================== --%>
     <c:otherwise>
-        <p class="as-ruta">
-            <a href="${ctx}/inicio">Inicio</a><span class="as-sep">/</span><a href="${ctx}/perfil">Mis datos</a><span class="as-sep">/</span>Editar
-        </p>
 
         <div class="as-titulo">
             <div>
